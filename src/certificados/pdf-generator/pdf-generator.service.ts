@@ -6,6 +6,9 @@ import * as path from 'path';
 import { StringHelper } from '../../common/helpers/string.helper.js';
 import { PdfDesignStyle, TextStyleConfig } from '../config/pdf-styles.config.js'
 
+// Definición del tipo para la alineación soportada
+export type TextAlign = 'center' | 'left';
+
 export interface RenderCertificadoOptions {
     nombreAlumno: string;
     tituloPrograma: string;
@@ -17,7 +20,8 @@ export interface RenderCertificadoOptions {
     outputPath: string;
     temario?: string | string[] | null;
     logoPath?: string | null;
-    styles: PdfDesignStyle
+    styles: PdfDesignStyle,
+    disenioDefault?: string | null
 }
 
 @Injectable()
@@ -34,7 +38,6 @@ export class PdfGeneratorService {
             }
 
             const backgroundPdfPath = this.resolveTemplatePath(options.pathPdfFondo);
-
             let pdfDoc: PDFDocument;
 
             // Cargar el PDF Plantilla como Fondo o Crear un PDF en blanco A4 Landscape
@@ -55,17 +58,81 @@ export class PdfGeneratorService {
             const page1 = pdfDoc.getPages()[0];
             const { width, height } = page1.getSize();
 
-            console.log('---- width page ----')
-            console.log({ width })
+            // Configuración de posiciones según el tipo de diseño
+            let alumnoBaseX = width / 2;
+            let alumnoBaseY = 0;
+            let maxWidthAlumno: number | undefined;
+            let alumnoAlign: TextAlign = 'center';
 
-            console.log('---- height page ----')
-            console.log({ height })
+            let programaBaseX = width / 2;
+            let programaBaseY = 0;
+            let maxWidthPrograma: number | undefined;
+            let programaAlign: TextAlign = 'center';
+
+            let fechaBaseX = width / 2;
+            let fechaBaseY = 0;
+            let maxWidthFecha: number | undefined;
+            let fechaAlign: TextAlign = 'center';
+
+            console.log('---- disenioDefault ----')
+            console.log(options.disenioDefault)
+
+            if (options.disenioDefault === 'capacitacion') {
+                alumnoBaseY = 305;
+                maxWidthAlumno = width * 0.86;
+
+                programaBaseY = 240;
+                maxWidthPrograma = width * 0.75;
+
+                fechaBaseY = 215;
+                maxWidthFecha = width * 0.75;
+            } else if (options.disenioDefault === 'certificacion') {
+                alumnoBaseY = 300;
+                maxWidthAlumno = width * 0.90;
+
+                programaBaseY = 230;
+                maxWidthPrograma = width * 0.80;
+
+                fechaBaseY = 210;
+                maxWidthFecha = width * 0.80;
+            } else if (options.disenioDefault === 'diplomado') {
+                alumnoBaseX = width / 2 - 215;
+                alumnoBaseY = height - 160;
+                maxWidthAlumno = width * 0.47;
+                alumnoAlign = 'left';
+
+                programaBaseX = width / 2 - 215;
+                programaBaseY = height - 240;
+                maxWidthPrograma = width * 0.47;
+                programaAlign = 'left';
+
+                fechaBaseX = width / 2 - 215;
+                fechaBaseY = height - 350;
+                maxWidthFecha = width * 0.47;
+                fechaAlign = 'left';
+            } else {
+                alumnoBaseY = 250;
+                maxWidthAlumno = width * 0.90;
+
+                programaBaseX = width / 2 + 24;
+                programaBaseY = 370;
+                maxWidthPrograma = 250;
+                programaAlign = 'left';
+
+                fechaBaseY = 190;
+                maxWidthFecha = width * 0.90;
+            }
+
+            console.log({ maxWidthAlumno })
+            console.log({ maxWidthPrograma })
+            console.log({ maxWidthFecha })
 
             // Renderizado de Nombre de Alumno
             const nombreAlumnoFormatted = StringHelper.capitalize(options.nombreAlumno, true);
             const fontAlumno = await this.resolveFont(pdfDoc, options.styles.alumno);
             const colorAlumno = this.hexToRgb(options.styles.alumno.color);
             const baseFontSizeAlumno = options.styles.alumno.fontSize;
+            console.log({ baseFontSizeAlumno })
 
             this.renderNombreAlumnoMultiline({
                 page: page1,
@@ -74,39 +141,54 @@ export class PdfGeneratorService {
                 color: colorAlumno,
                 baseFontSize: baseFontSizeAlumno,
                 pageWidth: width,
-                baseY: 305, // Coordenada Y por defecto para 1 sola línea
-                maxWidth: width * 0.86, // Ancho máximo (~723 pt en A4)
-                // maxWidth: width * 0.82, // Ancho máximo (~690 pt en A4)
+                baseX: alumnoBaseX,
+                baseY: alumnoBaseY,
+                maxWidth: maxWidthAlumno,
+                align: alumnoAlign
             });
 
+            // -------------------------------------------------------------
             // Renderizado de Título de Programa
+            // -------------------------------------------------------------
+            console.log('---- renderizado programa ----')
             const tituloProgramaUpper = options.tituloPrograma.toUpperCase();
             const fontPrograma = await this.resolveFont(pdfDoc, options.styles.programa);
             const colorPrograma = this.hexToRgb(options.styles.programa.color);
-            const fontSizePrograma = options.styles.programa.fontSize;
-            const widthPrograma = fontPrograma.widthOfTextAtSize(tituloProgramaUpper, fontSizePrograma);
+            const baseFontSizePrograma = options.styles.programa.fontSize;
+            console.log({ baseFontSizePrograma })
 
-            page1.drawText(tituloProgramaUpper, {
-                x: (width - widthPrograma) / 2,
-                y: 240,
-                size: fontSizePrograma,
+            this.renderTituloProgramaMultiline({
+                page: page1,
+                text: tituloProgramaUpper,
                 font: fontPrograma,
                 color: colorPrograma,
+                baseFontSize: baseFontSizePrograma,
+                baseX: programaBaseX,
+                baseY: programaBaseY,
+                maxWidth: maxWidthPrograma,
+                align: programaAlign,
             });
+
+            console.log(options.styles.programa)
+            console.log(options.styles.programa.fontSize)
 
             // Renderizado de Fechas
             if (options.fechasProgramaText) {
                 const fontFechas = await this.resolveFont(pdfDoc, options.styles.fechas);
                 const colorFechas = this.hexToRgb(options.styles.fechas.color);
                 const fontSizeFechas = options.styles.fechas.fontSize;
-                const widthFechas = fontFechas.widthOfTextAtSize(options.fechasProgramaText, fontSizeFechas);
+                console.log({ fontSizeFechas })
 
-                page1.drawText(options.fechasProgramaText, {
-                    x: (width - widthFechas) / 2,
-                    y: 215,
-                    size: fontSizeFechas,
+                this.renderFechasPrograma({
+                    page: page1,
+                    text: options.fechasProgramaText,
                     font: fontFechas,
                     color: colorFechas,
+                    baseFontSize: fontSizeFechas,
+                    baseX: fechaBaseX,
+                    baseY: fechaBaseY,
+                    maxWidth: maxWidthFecha,
+                    align: fechaAlign,
                 });
             }
 
@@ -152,7 +234,7 @@ export class PdfGeneratorService {
 
             startY -= 60;
 
-            // Título del Curso
+            // Título del Curso en Hoja 2
             page2.drawText(options.tituloPrograma, {
                 x: leftColX,
                 y: startY,
@@ -322,10 +404,10 @@ export class PdfGeneratorService {
         }
     }
 
-    /**
-     * Divide el nombre del alumno en 1 o 2 líneas si excede el ancho máximo,
-     * ajustando dinámicamente la fuente y la posición en el eje Y.
-     */
+    // -------------------------------------------------------------------------
+    // MÉTODOS PRIVADOS DE RENDERIZADO DE TEXTO
+    // -------------------------------------------------------------------------
+
     private renderNombreAlumnoMultiline(params: {
         page: PDFPage;
         text: string;
@@ -333,23 +415,28 @@ export class PdfGeneratorService {
         color: RGB;
         baseFontSize: number;
         pageWidth: number;
+        baseX: number;
         baseY: number;
-        maxWidth: number;
+        maxWidth?: number;
+        align?: TextAlign;
     }): void {
-        const { page, text, font, color, baseFontSize, pageWidth, baseY } = params;
+        const { page, text, font, color, baseFontSize, pageWidth, baseX, baseY, align = 'center', maxWidth } = params;
 
-        // 1. RESTRICCIÓN DE MARGEN: Definimos un maxWidth más conservador (70% del ancho A4)
-        // para no sobreponerse a las líneas verticales del diseño.
-        const effectiveMaxWidth = params.maxWidth ? Math.min(params.maxWidth, pageWidth * 0.70) : pageWidth * 0.70;
+        const effectiveMaxWidth = maxWidth ? Math.min(maxWidth, pageWidth * 0.70) : pageWidth * 0.70;
 
-        // Medir ancho original con el tamaño base configurado
+        console.log({ effectiveMaxWidth })
+
+        const getXPosition = (currentWidth: number): number => {
+            return align === 'center' ? baseX - currentWidth / 2 : baseX;
+        };
+
         const originalWidth = font.widthOfTextAtSize(text, baseFontSize);
 
-        // CASO 1: El texto cabe perfectamente en 1 línea con el tamaño base
+        console.log({ originalWidth })
+
         if (originalWidth <= effectiveMaxWidth) {
-            console.log('caso 1');
             page.drawText(text, {
-                x: (pageWidth - originalWidth) / 2,
+                x: getXPosition(originalWidth),
                 y: baseY,
                 size: baseFontSize,
                 font,
@@ -358,14 +445,13 @@ export class PdfGeneratorService {
             return;
         }
 
-        // INTENTO DE ESCALADO EN 1 LÍNEA:
-        // Si se excede ligeramente (hasta un 15%), reducemos levemente la fuente para mantener 1 sola línea
         const scaledFontSize = Math.round(baseFontSize * (effectiveMaxWidth / originalWidth));
+        console.log({ scaledFontSize })
+
         if (scaledFontSize >= Math.round(baseFontSize * 0.8)) {
-            console.log('INTENTO DE ESCALADO EN 1 LÍNEA');
             const scaledWidth = font.widthOfTextAtSize(text, scaledFontSize);
             page.drawText(text, {
-                x: (pageWidth - scaledWidth) / 2,
+                x: getXPosition(scaledWidth),
                 y: baseY,
                 size: scaledFontSize,
                 font,
@@ -374,49 +460,31 @@ export class PdfGeneratorService {
             return;
         }
 
-        // CASO 2: El texto requiere envolverse en múltiples líneas
-        // Primero dividimos preliminarmente las palabras
         const words = text.split(/\s+/);
-
-        // 2. ESCALADO ADAPTATIVO DE FUENTE SEGÚN CANTIDAD ESTIMADA DE PALABRAS/LÍNEAS
-        // Para 2 líneas usamos 65% del tamaño base. Si el nombre es muy largo (>5 palabras), usamos 52%
         let fontScaleRatio = words.length > 5 ? 0.52 : 0.65;
         let adjustedFontSize = Math.round(baseFontSize * fontScaleRatio);
-
         let lines: string[] = this.splitTextIntoLines(words, font, adjustedFontSize, effectiveMaxWidth);
+        console.log({ lines })
 
-        // Si con la primera reducción aún salen más de 2 líneas, ajustamos a un escalado más pequeño (50%)
         if (lines.length > 2) {
             fontScaleRatio = 0.50;
             adjustedFontSize = Math.round(baseFontSize * fontScaleRatio);
             lines = this.splitTextIntoLines(words, font, adjustedFontSize, effectiveMaxWidth);
         }
 
-        // CASO BORDE: Si tras la división resulta 1 sola línea
         if (lines.length === 1) {
-            console.log('CASO BORDE: Si tras la división resulta 1 sola línea');
-
-            // 1. Recalcular la fuente ideal para 1 sola línea:
-            // Calculamos el tamaño exacto para llenar el ancho disponible, limitándolo a un máximo
-            // de 78% del baseFontSize (para no igualar el Caso 1 o el Escrito con escalado inicial)
             const singleLineCalculatedSize = Math.floor(baseFontSize * (effectiveMaxWidth / originalWidth));
             const maxAllowedSingleLineSize = Math.round(baseFontSize * 0.78);
-
-            // Asignamos el mayor valor posible entre el ajustado actual y el calculado
             const borderCaseFontSize = Math.min(
                 Math.max(adjustedFontSize, singleLineCalculatedSize),
-                maxAllowedSingleLineSize
+                maxAllowedSingleLineSize,
             );
 
-            // 2. Medir el ancho exacto con la nueva fuente ajustada
             const singleLineWidth = font.widthOfTextAtSize(lines[0], borderCaseFontSize);
-
-            // 3. Desplazar ligeramente hacia arriba el eje Y (ej: +6pt)
-            const offsetY = 6;
-            const singleLineY = baseY + offsetY;
+            const singleLineY = baseY + 6;
 
             page.drawText(lines[0], {
-                x: (pageWidth - singleLineWidth) / 2,
+                x: getXPosition(singleLineWidth),
                 y: singleLineY,
                 size: borderCaseFontSize,
                 font,
@@ -425,28 +493,251 @@ export class PdfGeneratorService {
             return;
         }
 
-        // 3. AJUSTE DINÁMICO DE LINEHEIGHT SEGÚN EL NÚMERO DE LÍNEAS
-        // A mayor número de líneas, se ajusta un interlineado más compacto para cuidar la proporción vertical
         const lineHeightFactor = lines.length > 2 ? 1.05 : 1.15;
         const lineHeight = adjustedFontSize * lineHeightFactor;
         const totalBlockHeight = (lines.length - 1) * lineHeight;
-
-        // Reposicionar Y para que el centro visual del bloque coincida con baseY
         let currentY = baseY + totalBlockHeight / 2;
 
-        console.log('más de dos líneas');
         for (const line of lines) {
             const lineWidth = font.widthOfTextAtSize(line, adjustedFontSize);
 
             page.drawText(line, {
-                x: (pageWidth - lineWidth) / 2,
+                x: getXPosition(lineWidth),
                 y: currentY,
                 size: adjustedFontSize,
                 font,
                 color,
             });
 
-            currentY -= lineHeight; // Avanzar a la siguiente línea
+            currentY -= lineHeight;
+        }
+    }
+
+    private renderTituloProgramaMultiline(options: {
+        page: PDFPage;
+        text: string;
+        font: PDFFont;
+        color: RGB;
+        baseFontSize: number;
+        baseX: number;
+        baseY: number;
+        maxWidth?: number;
+        align?: TextAlign;
+    }) {
+        const {
+            page,
+            text,
+            font,
+            color,
+            baseFontSize,
+            baseX,
+            baseY,
+            align = 'left',
+            maxWidth = 300
+        } = options;
+
+        const words = text.split(/\s+/);
+
+        // Función auxiliar para dividir el texto en líneas basándose en un tamaño de fuente dado
+        const breakTextIntoLines = (currentSize: number): string[] => {
+            const resultLines: string[] = [];
+            let currentLine = '';
+
+            for (const word of words) {
+                const testLine = currentLine ? `${currentLine} ${word}` : word;
+                const lineWidth = font.widthOfTextAtSize(testLine, currentSize);
+
+                if (lineWidth <= maxWidth) {
+                    currentLine = testLine;
+                } else {
+                    if (currentLine) resultLines.push(currentLine);
+                    currentLine = word;
+                }
+            }
+            if (currentLine) resultLines.push(currentLine);
+            return resultLines;
+        };
+
+        // 1. Evaluación inicial con el tamaño base
+        let fontSize = baseFontSize;
+        let lines = breakTextIntoLines(fontSize);
+
+        // 2. Aplicación de escalas según la cantidad de líneas inicial
+        if (lines.length === 2) {
+            // Si son 2 líneas, reducimos el tamaño (ej: al 85%)
+            fontSize = Math.round(baseFontSize * 0.85);
+            lines = breakTextIntoLines(fontSize);
+        } else if (lines.length > 2) {
+            // Si son 3 o más líneas, aplicamos una reducción mayor (ej: al 70%)
+            fontSize = Math.round(baseFontSize * 0.70);
+            lines = breakTextIntoLines(fontSize);
+
+            // Salvaguarda: si aún después de reducir siguen siendo demasiadas líneas (ej > 3)
+            if (lines.length > 3) {
+                fontSize = Math.round(baseFontSize * 0.60);
+                lines = breakTextIntoLines(fontSize);
+            }
+        }
+
+        // 3. Caso borde: Asegurar que ninguna palabra individual desborde el contenedor
+        const minFontSize = 8;
+        while (fontSize > minFontSize) {
+            const hasOverflowWord = words.some(w => font.widthOfTextAtSize(w, fontSize) > maxWidth);
+            if (!hasOverflowWord) break;
+            fontSize -= 1;
+            lines = breakTextIntoLines(fontSize);
+        }
+
+        // 4. Calcular el posicionamiento vertical en base al número resultante de líneas
+        // Un lineHeightFactor de 1.2 o 1.25 da un buen interlineado visual
+        const lineHeight = fontSize * 1.2;
+        const totalBlockHeight = (lines.length - 1) * lineHeight;
+
+        // Al sumar la mitad de la altura total al baseY, logramos que el bloque 
+        // multilínea quede perfectamente centrado verticalmente sobre el eje baseY original.
+        let currentY = baseY + (totalBlockHeight / 2);
+
+        // 5. Renderizado final de las líneas
+        for (const line of lines) {
+            const lineWidth = font.widthOfTextAtSize(line, fontSize);
+            const x = align === 'center' ? baseX - (lineWidth / 2) : baseX;
+
+            page.drawText(line, {
+                x,
+                y: currentY,
+                size: fontSize,
+                font,
+                color,
+            });
+
+            // Desplazamos la posición en Y hacia abajo para la siguiente línea
+            currentY -= lineHeight;
+        }
+    }
+
+    private renderFechasPrograma(options: {
+        page: PDFPage;
+        text: string;
+        font: PDFFont;
+        color: RGB;
+        baseFontSize: number;
+        baseX: number;
+        baseY: number;
+        maxWidth?: number;
+        align?: TextAlign;
+    }): void {
+        const {
+            page,
+            text,
+            font,
+            color,
+            baseFontSize,
+            baseX,
+            baseY,
+            align = 'center',
+            maxWidth = 300,
+        } = options;
+
+        let fontSize = baseFontSize;
+        const originalWidth = font.widthOfTextAtSize(text, fontSize);
+
+        // CASO 1: El texto cabe perfectamente en 1 sola línea
+        if (originalWidth <= maxWidth) {
+            const x = align === 'center' ? baseX - originalWidth / 2 : baseX;
+            page.drawText(text, {
+                x,
+                y: baseY,
+                size: fontSize,
+                font,
+                color,
+            });
+            return;
+        }
+
+        // CASO 2: Intento de escalado fluido en 1 sola línea (reducción hasta ~85%)
+        const minSingleLineFontSize = Math.round(baseFontSize * 0.85);
+        const scaledFontSize = Math.floor(baseFontSize * (maxWidth / originalWidth));
+
+        if (scaledFontSize >= minSingleLineFontSize) {
+            const scaledWidth = font.widthOfTextAtSize(text, scaledFontSize);
+            const x = align === 'center' ? baseX - scaledWidth / 2 : baseX;
+
+            page.drawText(text, {
+                x,
+                y: baseY,
+                size: scaledFontSize,
+                font,
+                color,
+            });
+            return;
+        }
+
+        // CASO 3: División en múltiples líneas según el ancho de palabra con la fuente TTF
+        const words = text.split(/\s+/);
+
+        const breakTextIntoLines = (currentSize: number): string[] => {
+            const resultLines: string[] = [];
+            let currentLine = '';
+
+            for (const word of words) {
+                const testLine = currentLine ? `${currentLine} ${word}` : word;
+                const lineWidth = font.widthOfTextAtSize(testLine, currentSize);
+
+                if (lineWidth <= maxWidth) {
+                    currentLine = testLine;
+                } else {
+                    if (currentLine) resultLines.push(currentLine);
+                    currentLine = word;
+                }
+            }
+            if (currentLine) resultLines.push(currentLine);
+            return resultLines;
+        };
+
+        let lines = breakTextIntoLines(fontSize);
+
+        // Reducir tamaño progresivamente en caso de que alguna palabra individual sobrepase el maxWidth
+        const minFontSize = 8;
+        while (fontSize > minFontSize) {
+            const hasOverflowWord = words.some((w) => font.widthOfTextAtSize(w, fontSize) > maxWidth);
+            if (!hasOverflowWord) break;
+            fontSize -= 1;
+            lines = breakTextIntoLines(fontSize);
+        }
+
+        // CASO BORDE: Si de la división resulta 1 sola línea tras ajustar fontSize
+        if (lines.length === 1) {
+            const lineWidth = font.widthOfTextAtSize(lines[0], fontSize);
+            const x = align === 'center' ? baseX - lineWidth / 2 : baseX;
+
+            page.drawText(lines[0], {
+                x,
+                y: baseY,
+                size: fontSize,
+                font,
+                color,
+            });
+            return;
+        }
+
+        // CASO MULTILÍNEA: Renderizado y centrado vertical del bloque de texto
+        const lineHeight = fontSize * 1.25;
+        const totalBlockHeight = (lines.length - 1) * lineHeight;
+        let currentY = baseY + totalBlockHeight / 2;
+
+        for (const line of lines) {
+            const lineWidth = font.widthOfTextAtSize(line, fontSize);
+            const x = align === 'center' ? baseX - lineWidth / 2 : baseX;
+
+            page.drawText(line, {
+                x,
+                y: currentY,
+                size: fontSize,
+                font,
+                color,
+            });
+
+            currentY -= lineHeight;
         }
     }
 

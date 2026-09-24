@@ -11,6 +11,7 @@ import { CreateCertificadoDto } from './dto/create-certificado.dto.js';
 import { QrCodeService } from '../common/services/qr-code.service.js';
 import { PdfGeneratorService } from './pdf-generator/pdf-generator.service.js';
 import { resolvePdfStyle } from './config/pdf-styles.config.js'
+import { DateHelper } from '../common/helpers/date.helper.js'
 
 @Injectable()
 export class CertificadosService {
@@ -132,15 +133,19 @@ export class CertificadosService {
         const qrBase64 = await this.qrCodeService.generateAndSaveQR(qrUrl, qrPath);
 
         // Resolver esquema de estilos (basado en tipoPrograma, tipo_disenio y disenio_default)
-        const tipoProgramaUrl = certificadoFull.programa?.tipoPrograma?.nombreUrl;
         const tipoDisenio = certificadoFull.plantilla?.tipoDisenio;
         const disenioDefault = certificadoFull.plantilla?.disenioDefault;
 
-        const selectedStyles = resolvePdfStyle(tipoProgramaUrl, tipoDisenio, disenioDefault);
+        console.log({ tipoDisenio })
+        console.log({ disenioDefault })
+
+        const selectedStyles = resolvePdfStyle(disenioDefault, tipoDisenio);
+        console.log({ selectedStyles })
 
         // Resolver texto de fechas y horas
         const horas = certificadoFull.programa?.horasAcademicas || 120;
-        const fechasText = `Desarrollado con una duración de ${horas} horas académicas`;
+        const fechasText = DateHelper.formatearRangoFechas(certificadoFull.programa?.fechaInicio, certificadoFull.programa?.fechaFinal)
+        const fechasHorasText = `${fechasText} con una duración de ${horas} horas`
 
         // Logo institucional
         const logoPath = certificadoFull.sucursal?.logoPath || certificadoFull.plantilla?.institucion?.logoPath;
@@ -150,7 +155,7 @@ export class CertificadosService {
         await this.pdfGeneratorService.generarCertificadoPdf({
             nombreAlumno: certificadoFull.nombreImpresion,
             tituloPrograma: certificadoFull.programa?.titulo || 'PROGRAMA ACADÉMICO',
-            fechasProgramaText: fechasText,
+            fechasProgramaText: fechasHorasText,
             nombreDirector: certificadoFull.plantilla?.institucion?.nombreDirector,
             codigoVerificacion,
             qrBase64,
@@ -159,6 +164,7 @@ export class CertificadosService {
             temario: certificadoFull.programa?.temario || null,
             logoPath: logoPath ? path.resolve(process.cwd(), 'storage', logoPath) : null,
             styles: selectedStyles,
+            disenioDefault
         });
 
         return certificadoFull;
