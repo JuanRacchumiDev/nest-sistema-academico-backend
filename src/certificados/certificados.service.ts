@@ -132,11 +132,7 @@ export class CertificadosService {
         }
 
         // Construcción dinámica de la estructura de directorios:
-        const tipoCertificadoSlug = (
-            certificadoFull.tipoCertificado?.nombre ||
-            certificadoFull.programa?.tipoPrograma?.nombreUrl ||
-            'capacitacion'
-        )
+        const tipoCertificadoSlug = (certificadoFull.programa?.tipoPrograma?.nombreUrl || 'capacitacion')
             .toLowerCase()
             .trim()
             .normalize('NFD')
@@ -144,14 +140,11 @@ export class CertificadosService {
 
         const anio = new Date().getFullYear().toString();
 
-        const sucursalSlug = (
-            certificadoFull.sucursal?.nombre ||
-            certificadoFull.plantilla?.institucion?.nombre ||
-            'innovaperu'
-        )
+        const sucursalSlug = (certificadoFull.sucursal?.nombre || 'innovaperu')
             .toLowerCase()
             .trim()
-            .replace(/\s+/g, '');
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
 
         const dniAlumno = certificadoFull.persona?.numeroDocumento || '00000000';
 
