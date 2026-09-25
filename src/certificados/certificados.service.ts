@@ -228,6 +228,26 @@ export class CertificadosService {
         return certificado;
     }
 
+    async findOneByCodigo(codigo: string): Promise<Certificado> {
+        const certificado = await this.certificadoRepository.findOne({
+            where: { codigoVerificacion: codigo, estado: true },
+            relations: {
+                persona: true,
+                tipoCertificado: true,
+                sucursal: true,
+                plantilla: true,
+                programa: true,
+                modulo: true,
+            },
+        });
+
+        if (!certificado) {
+            throw new NotFoundException(`Certificado con código ${codigo} no fue encontrado`);
+        }
+
+        return certificado;
+    }
+
     /**
      * Retorna el Stream/Buffer del PDF para su descarga
      */
@@ -247,6 +267,29 @@ export class CertificadosService {
 
         const stream = fs.createReadStream(fullPdfPath);
         const downloadName = `certificado_${certificado.id}_${certificado.codigoVerificacion}.pdf`;
+
+        return { stream, filename: downloadName };
+    }
+
+    /**
+     * Retorna el Stream/Buffer del PDF para descarga buscando por CÓDIGO DE VERIFICACIÓN
+     */
+    async getPdfStreamByCodigo(codigo: string): Promise<{ stream: fs.ReadStream; filename: string }> {
+        const certificado = await this.findOneByCodigo(codigo);
+
+        const fullPdfPath = path.resolve(
+            process.cwd(),
+            'storage',
+            certificado.pathFile || '',
+            certificado.filename || ''
+        );
+
+        if (!fs.existsSync(fullPdfPath)) {
+            throw new NotFoundException(`El archivo PDF con código ${codigo} no fue encontrado físicamente en el directorio`);
+        }
+
+        const stream = fs.createReadStream(fullPdfPath);
+        const downloadName = `certificado_${certificado.codigoVerificacion}.pdf`;
 
         return { stream, filename: downloadName };
     }

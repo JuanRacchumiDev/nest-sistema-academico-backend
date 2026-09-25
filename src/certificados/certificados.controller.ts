@@ -19,6 +19,13 @@ export class CertificadosController {
         return await this.certificadosService.findOneById(id)
     }
 
+    @Get('validar/:codigo')
+    async validarByCodigo(
+        @Param('codigo') codigo: string
+    ): Promise<Certificado> {
+        return await this.certificadosService.findOneByCodigo(codigo);
+    }
+
     @Get(':id/pdf')
     async descargarPdf(
         @Param('id', ParseIntPipe) id: number
@@ -29,6 +36,18 @@ export class CertificadosController {
             type: 'application/pdf',
             disposition: `attachment; filename="${filename}"`
         })
+    }
+
+    @Get('descargar/:codigo')
+    async descargarPdfByCodigo(
+        @Param('codigo') codigo: string
+    ): Promise<StreamableFile> {
+        const { stream, filename } = await this.certificadosService.getPdfStreamByCodigo(codigo);
+
+        return new StreamableFile(stream, {
+            type: 'application/pdf',
+            disposition: `attachment; filename="${filename}"`
+        });
     }
 
     @Delete(':id')
