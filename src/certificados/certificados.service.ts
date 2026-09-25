@@ -87,9 +87,9 @@ export class CertificadosService {
         const codigoVerificacion = randomUUID().replace(/-/g, '').substring(0, 12).toUpperCase();
 
         // Definir nombres de archivo y rutas de almacenamiento
-        const folderPath = `certificados/${new Date().getFullYear()}`;
-        const fileName = `certificado_${Date.now()}.pdf`;
-        const qrPath = `qrs/qr_${codigoVerificacion}.png`;
+        // const folderPath = `certificados/${new Date().getFullYear()}`;
+        // const fileName = `certificado_${Date.now()}.pdf`;
+        // const qrPath = `qrs/qr_${codigoVerificacion}.png`;
 
         // Crear Instancia y Guardar en la Base de Datos
         const nuevoCertificado = this.certificadoRepository.create({
@@ -101,9 +101,12 @@ export class CertificadosService {
             nombreImpresion: createCertificadoDto.nombre_impresion,
             estado: createCertificadoDto.estado ?? true,
             codigoVerificacion,
-            codigoQrPath: qrPath,
-            pathFile: folderPath,
-            filename: fileName,
+            codigoQrPath: '',
+            pathFile: '',
+            filename: '',
+            // codigoQrPath: qrPath,
+            // pathFile: folderPath,
+            // filename: fileName,
         });
 
         const certificadoGuardado = await this.certificadoRepository.save(nuevoCertificado);
@@ -113,13 +116,14 @@ export class CertificadosService {
             where: { id: certificadoGuardado.id },
             relations: {
                 persona: true,
+                tipoCertificado: true,
                 programa: {
                     tipoPrograma: true,
                 },
                 plantilla: {
                     institucion: true,
                 },
-                sucursal: true
+                sucursal: true,
             },
         });
 
@@ -127,9 +131,50 @@ export class CertificadosService {
             throw new NotFoundException('Error al recuperar información del certificado guardado');
         }
 
+        // Construcción dinámica de la estructura de directorios:
+        const tipoCertificadoSlug = (
+            certificadoFull.tipoCertificado?.nombre ||
+            certificadoFull.programa?.tipoPrograma?.nombreUrl ||
+            'capacitacion'
+        )
+            .toLowerCase()
+            .trim()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, ''); // Remueve tildes y acentos
+
+        const anio = new Date().getFullYear().toString();
+
+        const sucursalSlug = (
+            certificadoFull.sucursal?.nombre ||
+            certificadoFull.plantilla?.institucion?.nombre ||
+            'innovaperu'
+        )
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '');
+
+        const dniAlumno = certificadoFull.persona?.numeroDocumento || '00000000';
+
+        // Ruta de carpeta relativa
+        const folderPath = path.join(tipoCertificadoSlug, anio, sucursalSlug, dniAlumno);
+        const fileName = `certificado_${codigoVerificacion}.pdf`;
+        const qrPath = path.join(folderPath, `qr_${codigoVerificacion}.png`);
+
+        // Actualizar rutas calculadas en el registro del certificado
+        certificadoFull.pathFile = folderPath;
+        certificadoFull.filename = fileName;
+        certificadoFull.codigoQrPath = qrPath;
+        await this.certificadoRepository.save(certificadoFull);
+
         // URL pública y QR
-        const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:3000');
+        const frontendUrl = this.configService.get<string>(
+            'FRONTEND_URL',
+            'https://app.innovaperu.edu.pe',
+        );
         const qrUrl = `${frontendUrl.replace(/\/$/, '')}/validar-certificado/${codigoVerificacion}`;
+
+        // const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:3000');
+        // const qrUrl = `${frontendUrl.replace(/\/$/, '')}/validar-certificado/${codigoVerificacion}`;
         const qrBase64 = await this.qrCodeService.generateAndSaveQR(qrUrl, qrPath);
 
         // Resolver esquema de estilos (basado en tipoPrograma, tipo_disenio y disenio_default)
