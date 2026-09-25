@@ -14,6 +14,26 @@ async function bootstrap() {
   app.use(json({ limit: '20mb' }));
   app.use(urlencoded({ extended: true, limit: '20mb' }));
 
+  // --- CONFIGURACIÓN DE CORS ---
+  const frontendUrl = configService.get<string>(
+    'FRONTEND_URL',
+    'https://app.innovaperu.edu.pe',
+  );
+
+  app.enableCors({
+    origin: [
+      frontendUrl,
+      'https://app.innovaperu.edu.pe',
+      'https://innovaperu.edu.pe',
+      'http://localhost:3000',
+      'http://localhost:5173',
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+    exposedHeaders: ['Content-Disposition'], // Permite que el frontend lea el nombre del archivo enviado en las descargas
+  });
+  // -----------------------------
+
   // Pipe global para transformar y validar los datos recibidos en controladores
   app.useGlobalPipes(
     new ValidationPipe({
