@@ -20,7 +20,15 @@ import { Programa } from './programas/entities/programa.entity.js';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: `.env.${process.env.NODE_ENV || 'local'}` }),
+    // Se configuran múltiples rutas para asegurar que cargue .env aunque NODE_ENV sea 'production'
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: [
+        `.env.${process.env.NODE_ENV}`,
+        '.env',
+        '.env.local',
+      ],
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
