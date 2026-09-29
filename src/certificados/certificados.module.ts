@@ -11,9 +11,11 @@ import { Modulo } from '../modulos/entities/modulo.entity.js';
 import { DetalleParametro } from '../detalle-parametros/entities/detalle-parametro.entity.js';
 import { PdfGeneratorService } from './pdf-generator/pdf-generator.service.js';
 import { QrCodeService } from '../common/services/qr-code.service.js';
+import { AuthModule } from '../auth/auth.module.js';
 
 @Module({
   imports: [
+    AuthModule,
     TypeOrmModule.forFeature([
       Certificado,
       Persona,

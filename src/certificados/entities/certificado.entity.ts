@@ -26,23 +26,23 @@ export class Certificado {
     @Column({ name: 'nombre_impresion', nullable: true })
     nombreImpresion: string
 
-    @Column({ name: 'fecha_crea', nullable: true })
-    fechaCrea: string
+    @Column({ name: 'fecha_crea', type: 'varchar', length: 10, nullable: true })
+    fechaCrea: string;
 
-    @Column({ name: 'fecha_actualiza', nullable: true })
-    fechaActualiza: string
+    @Column({ name: 'fecha_actualiza', type: 'varchar', length: 10, nullable: true })
+    fechaActualiza: string;
 
-    @Column({ name: 'fecha_elimina', nullable: true })
-    fechaElimina: string
+    @Column({ name: 'fecha_elimina', type: 'varchar', length: 10, nullable: true })
+    fechaElimina: string;
 
-    @Column({ name: 'user_crea', nullable: true })
-    userCrea: string
+    @Column({ name: 'user_crea', type: 'varchar', length: 12, nullable: true })
+    userCrea: string;
 
-    @Column({ name: 'user_actualiza', nullable: true })
-    userActualiza: string
+    @Column({ name: 'user_actualiza', type: 'varchar', length: 12, nullable: true })
+    userActualiza: string;
 
-    @Column({ name: 'user_elimina', nullable: true })
-    userElimina: string
+    @Column({ name: 'user_elimina', type: 'varchar', length: 12, nullable: true })
+    userElimina: string;
 
     @Column({ type: 'boolean', default: true })
     estado: boolean

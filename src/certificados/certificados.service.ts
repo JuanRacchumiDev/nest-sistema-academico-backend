@@ -10,8 +10,10 @@ import { Certificado } from './entities/certificado.entity.js';
 import { CreateCertificadoDto } from './dto/create-certificado.dto.js';
 import { QrCodeService } from '../common/services/qr-code.service.js';
 import { PdfGeneratorService } from './pdf-generator/pdf-generator.service.js';
-import { resolvePdfStyle } from './config/pdf-styles.config.js'
+import { resolvePdfStyle, CertificadoRenderData } from './config/pdf-styles.config.js'
 import { DateHelper } from '../common/helpers/date.helper.js'
+import { AuthenticatedUser } from '../common/decorators/current-user.decorator.js';
+import { DateFormatterUtil } from '../common/utils/date-formatter.util.js';
 
 @Injectable()
 export class CertificadosService {
@@ -82,17 +84,17 @@ export class CertificadosService {
     /**
      * Registra un certificado y genera su correspondiente PDF y QR
      */
-    async create(createCertificadoDto: CreateCertificadoDto): Promise<Certificado> {
+    async create(createCertificadoDto: CreateCertificadoDto, user?: AuthenticatedUser): Promise<Certificado> {
+        console.log('---- user in create CertificadosService ----')
+        console.log({ user })
+
+        const userCrea = user?.name || user?.id || 'SYSTEM';
+        const fechaCrea = new Date().toISOString().substring(0, 10);
+
         // Generar código de verificación único
         const codigoVerificacion = randomUUID().replace(/-/g, '').substring(0, 12).toUpperCase();
 
-        // Definir nombres de archivo y rutas de almacenamiento
-        // const folderPath = `certificados/${new Date().getFullYear()}`;
-        // const fileName = `certificado_${Date.now()}.pdf`;
-        // const qrPath = `qrs/qr_${codigoVerificacion}.png`;
-
-        // Crear Instancia y Guardar en la Base de Datos
-        const nuevoCertificado = this.certificadoRepository.create({
+        const nuevoCertificadoData = {
             persona: { id: createCertificadoDto.id_persona },
             tipoCertificado: { codigo: createCertificadoDto.codigo_tipocertificado },
             sucursal: { id: createCertificadoDto.id_sucursal },
@@ -104,12 +106,16 @@ export class CertificadosService {
             codigoQrPath: '',
             pathFile: '',
             filename: '',
-            // codigoQrPath: qrPath,
-            // pathFile: folderPath,
-            // filename: fileName,
-        });
+            userCrea,
+            fechaCrea
+        }
 
-        const certificadoGuardado = await this.certificadoRepository.save(nuevoCertificado);
+        console.log({ nuevoCertificadoData })
+
+        // Crear Instancia y Guardar en la Base de Datos
+        const certificado = this.certificadoRepository.create(nuevoCertificadoData);
+
+        const certificadoGuardado = await this.certificadoRepository.save(certificado);
 
         // Recargar Relaciones para obtener datos completos de programa y plantilla
         const certificadoFull = await this.certificadoRepository.findOne({
@@ -166,8 +172,6 @@ export class CertificadosService {
         );
         const qrUrl = `${frontendUrl.replace(/\/$/, '')}/validar-certificado/${codigoVerificacion}`;
 
-        // const frontendUrl = this.configService.get<string>('FRONTEND_URL', 'http://localhost:3000');
-        // const qrUrl = `${frontendUrl.replace(/\/$/, '')}/validar-certificado/${codigoVerificacion}`;
         const qrBase64 = await this.qrCodeService.generateAndSaveQR(qrUrl, qrPath);
 
         // Resolver esquema de estilos (basado en tipoPrograma, tipo_disenio y disenio_default)
@@ -292,5 +296,28 @@ export class CertificadosService {
         const downloadName = `certificado_${certificado.codigoVerificacion}.pdf`;
 
         return { stream, filename: downloadName };
+    }
+
+    obtenerConfiguracionCertificado(
+        user: AuthenticatedUser,
+        disenioDefault?: string,
+        tipoDisenio?: string,
+        subtipoDisenio?: string,
+    ): CertificadoRenderData {
+        // Resolver el estilo visual del PDF
+        const style = resolvePdfStyle(disenioDefault, tipoDisenio, subtipoDisenio);
+
+        // Generar metadatos de fechas en formato yyyy-MM-dd y auditoría de usuario
+        const fechaActual = DateFormatterUtil.formatDate();
+
+        return {
+            style,
+            metadata: {
+                fecha_crea: fechaActual,
+                fecha_actualiza: fechaActual,
+                user_crea: user.id,
+                user_actualiza: user.id,
+            },
+        };
     }
 }

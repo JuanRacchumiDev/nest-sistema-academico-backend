@@ -12,7 +12,24 @@ export interface PdfDesignStyle {
     director?: TextStyleConfig
 }
 
-export const STYLES_PDFS_CONFIG: Record<string, Record<string, PdfDesignStyle>> = {
+export interface PdfMetadata {
+    fecha_crea: string
+    fecha_actualiza: string
+    user_crea?: string
+    user_actualiza?: string
+}
+
+export interface CertificadoRenderData {
+    style: PdfDesignStyle
+    metadata: PdfMetadata
+}
+
+// Tipo recursivo para soportar N niveles de anidación o el estilo final
+export type PdfStyleTree = {
+    [key: string]: PdfDesignStyle | PdfStyleTree;
+};
+
+export const STYLES_PDFS_CONFIG: PdfStyleTree = {
     capacitacion: {
         default_uno: {
             alumno: {
@@ -683,28 +700,89 @@ export const STYLES_PDFS_CONFIG: Record<string, Record<string, PdfDesignStyle>> 
                 font: 'Archivo-Medium.ttf',
                 fontSize: 12
             }
+        },
+        especializacion_col_profesores_lima: {
+            alumno: {
+                color: '#D5A701',
+                custom_font: true,
+                font: 'GreatVibes-Regular.ttf',
+                fontSize: 60,
+            },
+            programa: {
+                color: '#002155',
+                custom_font: true,
+                font: 'Anton.ttf',
+                fontSize: 30,
+            },
+            fechas: {
+                color: '#D5A701',
+                custom_font: true,
+                font: 'Archivo-Regular.ttf',
+                fontSize: 17,
+            },
         }
     }
 };
 
 /**
- * Resuelve la configuración de estilos a utilizar según tipo de programa y diseño
+ * Función auxiliar Type Guard para verificar si un objeto cumple con la interfaz PdfDesignStyle
+ */
+function isPdfDesignStyle(obj: unknown): obj is PdfDesignStyle {
+    return (
+        typeof obj === 'object' &&
+        obj !== null &&
+        'alumno' in obj &&
+        'programa' in obj &&
+        'fechas' in obj
+    );
+}
+
+/**
+ * Resuelve la configuración de estilos a utilizar según tipo de programa, subtipo o diseño
  */
 export function resolvePdfStyle(
     disenioDefault?: string | null,
     tipoDisenio?: string | null,
+    subtipoDisenio?: string | null,
 ): PdfDesignStyle {
-    const tipoKey = (disenioDefault || 'capacitacion').toLowerCase()
-    const disenioKey = tipoDisenio || 'default_uno'
-    const grupoEstilos = STYLES_PDFS_CONFIG[tipoKey]
+    const tipoKey = (disenioDefault || 'capacitacion').toLowerCase();
+    const disenioKey = tipoDisenio || 'default_uno';
+    const subtipoKey = subtipoDisenio || null;
 
-    if (grupoEstilos && grupoEstilos[disenioKey]) {
-        return grupoEstilos[disenioKey]
+    const grupoTipo = STYLES_PDFS_CONFIG[tipoKey] as Record<string, unknown> | undefined;
+
+    // 1. Buscar en nivel profundo (tipo -> diseño -> subtipo)
+    if (subtipoKey && grupoTipo) {
+        const grupoDisenio = grupoTipo[disenioKey] as Record<string, unknown> | undefined;
+        if (grupoDisenio) {
+            const target = grupoDisenio[subtipoKey];
+            if (isPdfDesignStyle(target)) {
+                return target;
+            }
+        }
     }
 
-    if (grupoEstilos && grupoEstilos['default_uno']) {
-        return grupoEstilos['default_uno']
+    // 2. Buscar en nivel intermedio (tipo -> diseño)
+    if (grupoTipo) {
+        const targetIntermedio = grupoTipo[disenioKey];
+        if (isPdfDesignStyle(targetIntermedio)) {
+            return targetIntermedio;
+        }
+
+        // Fallback al primer estilo válido dentro de esa rama
+        if (typeof targetIntermedio === 'object' && targetIntermedio !== null) {
+            const valores = Object.values(targetIntermedio as Record<string, unknown>);
+            const primerEstilo = valores.find(isPdfDesignStyle);
+            if (primerEstilo) return primerEstilo;
+        }
     }
 
-    return STYLES_PDFS_CONFIG.capacitacion.default_uno
+    // 3. Fallback por defecto
+    const grupoCapacitacion = STYLES_PDFS_CONFIG.capacitacion as Record<string, unknown> | undefined;
+    const defaultStyle = grupoCapacitacion?.default_uno;
+    if (isPdfDesignStyle(defaultStyle)) {
+        return defaultStyle;
+    }
+
+    throw new Error('No se pudo resolver una configuración de estilo PDF válida.');
 }

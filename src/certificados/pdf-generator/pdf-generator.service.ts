@@ -74,6 +74,10 @@ export class PdfGeneratorService {
             let maxWidthFecha: number | undefined;
             let fechaAlign: TextAlign = 'center';
 
+            const isDiplomadoDesign =
+                options.disenioDefault === 'diplomado' ||
+                options.disenioDefault === 'especializacion_col_profesores_lima';
+
             console.log('---- disenioDefault ----')
             console.log(options.disenioDefault)
 
@@ -95,7 +99,7 @@ export class PdfGeneratorService {
 
                 fechaBaseY = 210;
                 maxWidthFecha = width * 0.80;
-            } else if (options.disenioDefault === 'diplomado') {
+            } else if (isDiplomadoDesign) {
                 alumnoBaseX = width / 2 - 215;
                 alumnoBaseY = height - 160;
                 maxWidthAlumno = width * 0.47;
