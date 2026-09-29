@@ -1,11 +1,16 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { PlantillasService } from './plantillas.service.js';
 import type { PlantillaFiles } from './plantillas.service.js';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { multerPlantillasOptions } from './config/multer-plantillas.config.js';
 import { CreatePlantillaDto } from './dto/create-planilla.dto.js';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { currentUser } from '../common/decorators/current-user.decorator.js';
+import type { AuthenticatedUser } from '../common/decorators/current-user.decorator.js';
+import { Plantilla } from './entities/plantilla.entity.js';
 
 @Controller('plantillas')
+@UseGuards(JwtAuthGuard)
 export class PlantillasController {
     constructor(private readonly plantillasService: PlantillasService) { }
 
@@ -23,8 +28,9 @@ export class PlantillasController {
     async create(
         @Body() createPlantillaDto: CreatePlantillaDto,
         @UploadedFiles() files: PlantillaFiles,
-    ) {
-        return await this.plantillasService.create(createPlantillaDto, files)
+        @currentUser() user: AuthenticatedUser
+    ): Promise<Plantilla> {
+        return await this.plantillasService.create(createPlantillaDto, files, user)
     }
 
     @Get(':id')

@@ -28,23 +28,23 @@ export class Plantilla {
     @Column({ name: 'disenio_default', length: 100, nullable: true })
     disenioDefault: string
 
-    @Column({ name: 'fecha_crea', length: 10, nullable: true })
-    fechaCrea: string
+    @Column({ name: 'fecha_crea', type: 'varchar', length: 10, nullable: true })
+    fechaCrea: string;
 
-    @Column({ name: 'fecha_actualiza', length: 10, nullable: true })
-    fechaActualiza: string
+    @Column({ name: 'fecha_actualiza', type: 'varchar', length: 10, nullable: true })
+    fechaActualiza: string;
 
-    @Column({ name: 'fecha_elimina', length: 10, nullable: true })
-    fechaElimina: string
+    @Column({ name: 'fecha_elimina', type: 'varchar', length: 10, nullable: true })
+    fechaElimina: string;
 
-    @Column({ name: 'user_crea', length: 12, nullable: true })
-    userCrea: string
+    @Column({ name: 'user_crea', type: 'varchar', length: 12, nullable: true })
+    userCrea: string;
 
-    @Column({ name: 'user_actualiza', length: 12, nullable: true })
-    userActualiza: string
+    @Column({ name: 'user_actualiza', type: 'varchar', length: 12, nullable: true })
+    userActualiza: string;
 
-    @Column({ name: 'user_elimina', length: 12, nullable: true })
-    userElimina: string
+    @Column({ name: 'user_elimina', type: 'varchar', length: 12, nullable: true })
+    userElimina: string;
 
     @Column({ type: 'boolean', default: true })
     estado: boolean

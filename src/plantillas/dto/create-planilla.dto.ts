@@ -47,6 +47,21 @@ export class CreatePlantillaDto {
     user_elimina?: string
 
     @IsOptional()
+    @IsString()
+    @MaxLength(10)
+    fecha_crea?: string
+
+    @IsOptional()
+    @IsString()
+    @MaxLength(10)
+    fecha_actualiza?: string
+
+    @IsOptional()
+    @IsString()
+    @MaxLength(10)
+    fecha_elimina?: string
+
+    @IsOptional()
     @Transform(({ value }) => value === 'true' || value === true)
     @IsBoolean()
     estado?: boolean = true

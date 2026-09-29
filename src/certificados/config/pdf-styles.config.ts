@@ -70,6 +70,12 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 font: 'Archivo-Regular.ttf',
                 fontSize: 15,
             },
+            director: {
+                color: '#000000',
+                custom_font: true,
+                font: 'Archivo-Medium.ttf',
+                fontSize: 12
+            }
         }
     },
     certificacion: {
