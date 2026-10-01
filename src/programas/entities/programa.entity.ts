@@ -2,6 +2,8 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColum
 import { Certificado } from "../../certificados/entities/certificado.entity.js"
 import { DetalleParametro } from "../../detalle-parametros/entities/detalle-parametro.entity.js"
 import { Institucion } from "../../instituciones/entities/institucion.entity.js"
+import type { Modulo } from "../../modulos/entities/modulo.entity.js"
+import type { Relation } from "typeorm"
 
 @Entity({ name: 'programa', schema: 'academic' })
 export class Programa {
@@ -113,4 +115,7 @@ export class Programa {
 
     @OneToMany(() => Certificado, (certificado) => certificado.programa)
     certificados: Certificado[]
+
+    @OneToMany('Modulo', (modulo: Modulo) => modulo.programa)
+    modulos: Relation<Modulo[]>;
 }

@@ -125,6 +125,7 @@ export class CertificadosService {
                 tipoCertificado: true,
                 programa: {
                     tipoPrograma: true,
+                    modulos: true
                 },
                 plantilla: {
                     institucion: true,
@@ -143,6 +144,21 @@ export class CertificadosService {
             .trim()
             .normalize('NFD')
             .replace(/[\u0300-\u036f]/g, ''); // Remueve tildes y acentos
+
+        const esEspecializacion = tipoCertificadoSlug === 'especializacion';
+
+        let contenido: string | string[] | null = null;
+
+        if (esEspecializacion) {
+            const modulos = certificadoFull.programa?.modulos || [];
+            console.log({ modulos })
+            contenido = modulos.map((m) => m.titulo)
+        } else {
+            contenido = certificadoFull.programa?.temario || null
+        }
+
+        console.log({ esEspecializacion })
+        console.log({ contenido })
 
         const anio = new Date().getFullYear().toString();
 
@@ -203,7 +219,8 @@ export class CertificadosService {
             qrBase64,
             pathPdfFondo: certificadoFull.plantilla?.pathPdfFondo,
             outputPath: relativePdfPath,
-            temario: certificadoFull.programa?.temario || null,
+            temario: contenido,
+            esEspecializacion,
             logoPath: logoPath ? path.resolve(process.cwd(), 'storage', logoPath) : null,
             styles: selectedStyles,
             disenioDefault

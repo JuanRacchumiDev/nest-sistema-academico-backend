@@ -19,6 +19,7 @@ export interface RenderCertificadoOptions {
     pathPdfFondo?: string | null;
     outputPath: string;
     temario?: string | string[] | null;
+    esEspecializacion?: boolean
     logoPath?: string | null;
     styles: PdfDesignStyle,
     disenioDefault?: string | null
@@ -29,6 +30,8 @@ export class PdfGeneratorService {
     private readonly logger = new Logger(PdfGeneratorService.name);
 
     async generarCertificadoPdf(options: RenderCertificadoOptions): Promise<string> {
+        console.log({ options })
+
         try {
             const fullOutputPath = path.resolve(process.cwd(), 'storage', options.outputPath);
             const outputDir = path.dirname(fullOutputPath);
@@ -151,9 +154,9 @@ export class PdfGeneratorService {
                 fechaBaseY = 190;
                 maxWidthFecha = width * 0.90;
 
-                directorBaseX = width / 2 - 200;
-                directorBaseY = height - 150;
-                maxWidthDirector = 200;
+                directorBaseX = width / 2 - 80;
+                directorBaseY = height - 546;
+                maxWidthDirector = 270;
                 directorAlign = 'center'
             }
 
@@ -227,12 +230,18 @@ export class PdfGeneratorService {
                 });
             }
 
+            console.log('options.styles')
+            console.log(options.styles)
+
+            console.log('options.nombreDirector')
+            console.log(options.nombreDirector)
+
             // Renderizado de Firma Director (Si aplica el diseño)
             if (options.styles.director && options.nombreDirector) {
+                console.log('existe nombreDirector')
                 const fontDirector = await this.resolveFont(pdfDoc, options.styles.director);
                 const colorDirector = this.hexToRgb(options.styles.director.color);
                 const fontSizeDirector = options.styles.director.fontSize;
-                // const widthDirector = fontDirector.widthOfTextAtSize(options.nombreDirector, fontSizeDirector);
 
                 this.renderDirector({
                     page: page1,
@@ -245,6 +254,8 @@ export class PdfGeneratorService {
                     maxWidth: maxWidthDirector,
                     align: directorAlign
                 });
+            } else {
+                console.log('no existe')
             }
 
             // --------
@@ -306,7 +317,9 @@ export class PdfGeneratorService {
                 borderWidth: 1,
             });
 
-            page2.drawText('TEMARIO', {
+            const tituloSeccion = options.esEspecializacion ? 'MÓDULOS DEL PROGRAMA' : 'TEMARIO';
+
+            page2.drawText(tituloSeccion, {
                 x: leftColX + 10,
                 y: startY + 6,
                 size: 11,
@@ -323,17 +336,35 @@ export class PdfGeneratorService {
                     : options.temario.split('\n');
 
                 let itemY = startY - 10;
-                for (const item of temarioItems) {
-                    if (!item.trim()) continue;
-                    page2.drawText(`${item.trim()}`, {
+                for (let i = 0; i < temarioItems.length; i++) {
+                    const item = temarioItems[i];
+                    if (!item || !item.trim()) continue;
+
+                    // Si es especialización, agregar prefijo numérico "Módulo X: "
+                    const prefix = options.esEspecializacion ? `Módulo ${i + 1}: ` : '• ';
+                    const itemText = `${prefix}${item.trim()}`;
+
+                    page2.drawText(itemText, {
                         x: leftColX + 5,
                         y: itemY,
-                        size: 10,
+                        size: 9.5,
                         font: fontHelv,
                         color: rgb(0.1, 0.1, 0.1),
                     });
                     itemY -= 16;
                 }
+                // for (const item of temarioItems) {
+                //     if (!item.trim()) continue;
+
+                //     page2.drawText(`${item.trim()}`, {
+                //         x: leftColX + 5,
+                //         y: itemY,
+                //         size: 10,
+                //         font: fontHelv,
+                //         color: rgb(0.1, 0.1, 0.1),
+                //     });
+                //     itemY -= 16;
+                // }
             }
 
             // Columna Derecha: Logo e Inserción de Tabla de Registro Electrónico con QR
