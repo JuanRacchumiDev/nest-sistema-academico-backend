@@ -24,7 +24,6 @@ export interface CertificadoRenderData {
     metadata: PdfMetadata
 }
 
-// Tipo recursivo para soportar N niveles de anidación o el estilo final
 export type PdfStyleTree = {
     [key: string]: PdfDesignStyle | PdfStyleTree;
 };
@@ -724,7 +723,7 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#D5A701',
                 custom_font: true,
                 font: 'Archivo-Regular.ttf',
-                fontSize: 17,
+                fontSize: 15,
             },
             director: {
                 color: '#1D1D1B',
