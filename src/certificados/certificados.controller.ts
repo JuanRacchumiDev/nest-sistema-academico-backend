@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, StreamableFile, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Patch, Query, StreamableFile, UseGuards } from '@nestjs/common';
 import { CertificadosService } from './certificados.service.js';
 import { Certificado } from './entities/certificado.entity.js';
 import { CreateCertificadoDto } from './dto/create-certificado.dto.js';
 import { currentUser } from '../common/decorators/current-user.decorator.js';
 import type { AuthenticatedUser } from '../common/decorators/current-user.decorator.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { UpdateCertificadoDto } from './dto/update-certificado.dto.js';
 
 @Controller('certificados')
 @UseGuards(JwtAuthGuard)
@@ -31,11 +32,18 @@ export class CertificadosController {
         @Body() createCertificadoDto: CreateCertificadoDto,
         @currentUser() user: AuthenticatedUser
     ): Promise<Certificado> {
-        // createCertificadoDto.user_crea = user.name
-        // createCertificadoDto.fecha_crea = new Date().toISOString().substring(0, 10);
         console.log('---- user AuthenticateUser ----')
         console.log({ user })
         return await this.certificadosService.create(createCertificadoDto, user)
+    }
+
+    @Patch(':id')
+    async update(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() updateCertificadoDto: UpdateCertificadoDto,
+        @currentUser() user: AuthenticatedUser,
+    ): Promise<Certificado> {
+        return await this.certificadosService.update(id, updateCertificadoDto, user);
     }
 
     @Get(':id')

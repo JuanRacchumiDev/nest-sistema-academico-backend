@@ -2,8 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Plantilla } from './entities/plantilla.entity.js';
 import { Repository } from 'typeorm';
-import { CreatePlantillaDto } from './dto/create-planilla.dto.js';
+import { CreatePlantillaDto } from './dto/create-plantilla.dto.js';
 import { AuthenticatedUser } from '../common/decorators/current-user.decorator.js';
+import { UpdatePlantillaDto } from './dto/update-plantilla.dto.js';
 
 export interface PlantillaFiles {
     path_imagen_fondo?: Express.Multer.File[]
@@ -18,6 +19,56 @@ export class PlantillasService {
         private readonly plantillaRepository: Repository<Plantilla>
     ) { }
 
+    async update(
+        id: number,
+        dto: UpdatePlantillaDto,
+        files?: PlantillaFiles,
+        user?: AuthenticatedUser
+    ): Promise<Plantilla> {
+        // Verifica si la plantilla existe
+        const plantilla = await this.findOneById(id)
+
+        const userActualiza = user?.name || 'SYSTEM'
+        const fechaActualiza = new Date().toISOString().substring(0, 10)
+        const relativeStoragePath = 'plantillas';
+
+        // Procesar nuevas rutas de archivos solo si fueron provistos
+        const pathImagenFondo = files?.path_imagen_fondo?.[0]
+            ? `${relativeStoragePath}/${files.path_imagen_fondo[0].filename}`
+            : undefined
+
+        const pathImagenPublica = files?.path_imagen_publica?.[0]
+            ? `${relativeStoragePath}/${files.path_imagen_publica[0].filename}`
+            : undefined
+
+        const pathPdfFondo = files?.path_pdf_fondo?.[0]
+            ? `${relativeStoragePath}/${files.path_pdf_fondo[0].filename}`
+            : undefined
+
+        // Fusionar datos actualizados
+        this.plantillaRepository.merge(plantilla, {
+            ...(dto.nombre && { nombre: dto.nombre }),
+            ...(dto.descripcion !== undefined && { descripcion: dto.descripcion }),
+            ...(dto.tipo_disenio !== undefined && { tipoDisenio: dto.tipo_disenio }),
+            ...(dto.disenio_default !== undefined && { disenioDefault: dto.disenio_default }),
+            ...(dto.estado !== undefined && { estado: dto.estado }),
+            ...(pathImagenFondo && { pathImagenFondo }),
+            ...(pathImagenPublica && { pathImagenPublica }),
+            ...(pathPdfFondo && { pathPdfFondo }),
+            userActualiza,
+            fechaActualiza,
+            ...(dto.id_institucion !== undefined && {
+                institucion: dto.id_institucion ? { id: dto.id_institucion } as any : null
+            }),
+            ...(dto.codigo_tipoprograma !== undefined && {
+                tipoPrograma: dto.codigo_tipoprograma ? { codigo: dto.codigo_tipoprograma } as any : null
+            })
+        })
+
+        // Guardar los cambios
+        return await this.plantillaRepository.save(plantilla)
+    }
+
     async create(
         dto: CreatePlantillaDto,
         files: PlantillaFiles,
@@ -26,7 +77,7 @@ export class PlantillasService {
         console.log('---- user in create CertificadosService ----')
         console.log({ user })
 
-        const userCrea = user?.name || user?.id || 'SYSTEM';
+        const userCrea = user?.name || 'SYSTEM';
         const fechaCrea = new Date().toISOString().substring(0, 10);
 
         const relativeStoragePath = 'plantillas'

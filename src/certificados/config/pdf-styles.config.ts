@@ -726,6 +726,12 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 font: 'Archivo-Regular.ttf',
                 fontSize: 17,
             },
+            director: {
+                color: '#1D1D1B',
+                custom_font: true,
+                font: 'Archivo-Medium.ttf',
+                fontSize: 11
+            }
         }
     }
 };
