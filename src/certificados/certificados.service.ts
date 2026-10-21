@@ -40,41 +40,6 @@ export class CertificadosService {
 
         const { pathFile, filename, codigoQrPath } = certificado
 
-        // Eliminar archivo PDF generado
-        // if (certificado.pathFile && certificado.filename) {
-        //     try {
-        //         const fullPdfPath = path.resolve(
-        //             process.cwd(),
-        //             'storage',
-        //             certificado.pathFile,
-        //             certificado.filename,
-        //         );
-
-        //         if (fs.existsSync(fullPdfPath)) {
-        //             fs.unlinkSync(fullPdfPath);
-        //         }
-        //     } catch (error) {
-        //         console.error(`Error al eliminar el archivo PDF del certificado ${id}:`, error);
-        //     }
-        // }
-
-        // // Eliminar imagen QR generado
-        // if (certificado.codigoQrPath) {
-        //     try {
-        //         const fullQrPath = path.resolve(
-        //             process.cwd(),
-        //             'storage',
-        //             certificado.codigoQrPath,
-        //         );
-
-        //         if (fs.existsSync(fullQrPath)) {
-        //             fs.unlinkSync(fullQrPath);
-        //         }
-        //     } catch (error) {
-        //         console.error(`Error al eliminar la imagen QR del certificado ${id}:`, error);
-        //     }
-        // }
-
         this.eliminarArchivosFisicos(pathFile, filename, codigoQrPath);
 
         // Eliminar el registro de la base de datos
@@ -123,117 +88,6 @@ export class CertificadosService {
         const certificadoGuardado = await this.certificadoRepository.save(certificado);
 
         return await this.generarArchivosYGuardar(certificadoGuardado.id);
-
-        // Recargar Relaciones para obtener datos completos de programa y plantilla
-        // const certificadoFull = await this.certificadoRepository.findOne({
-        //     where: { id: certificadoGuardado.id },
-        //     relations: {
-        //         persona: true,
-        //         tipoCertificado: true,
-        //         programa: {
-        //             tipoPrograma: true,
-        //             modulos: true
-        //         },
-        //         plantilla: {
-        //             institucion: true,
-        //         },
-        //         sucursal: true,
-        //     },
-        // });
-
-        // if (!certificadoFull) {
-        //     throw new NotFoundException('Error al recuperar información del certificado guardado');
-        // }
-
-        // // Construcción dinámica de la estructura de directorios:
-        // const tipoCertificadoSlug = (certificadoFull.programa?.tipoPrograma?.nombreUrl || 'capacitacion')
-        //     .toLowerCase()
-        //     .trim()
-        //     .normalize('NFD')
-        //     .replace(/[\u0300-\u036f]/g, ''); // Remueve tildes y acentos
-
-        // const esEspecializacion = tipoCertificadoSlug === 'especializacion';
-
-        // let contenido: string | string[] | null = null;
-
-        // if (esEspecializacion) {
-        //     const modulos = certificadoFull.programa?.modulos || [];
-        //     console.log({ modulos })
-        //     contenido = modulos.map((m) => m.titulo)
-        // } else {
-        //     contenido = certificadoFull.programa?.temario || null
-        // }
-
-        // console.log({ esEspecializacion })
-        // console.log({ contenido })
-
-        // const anio = new Date().getFullYear().toString();
-
-        // const sucursalSlug = (certificadoFull.sucursal?.nombre || 'innovaperu')
-        //     .toLowerCase()
-        //     .trim()
-        //     .normalize('NFD')
-        //     .replace(/[\u0300-\u036f]/g, '');
-
-        // const dniAlumno = certificadoFull.persona?.numeroDocumento || '00000000';
-
-        // // Ruta de carpeta relativa
-        // const folderPath = path.join(tipoCertificadoSlug, anio, sucursalSlug, dniAlumno);
-        // const fileName = `certificado_${codigoVerificacion}.pdf`;
-        // const qrPath = path.join(folderPath, `qr_${codigoVerificacion}.png`);
-
-        // // Actualizar rutas calculadas en el registro del certificado
-        // certificadoFull.pathFile = folderPath;
-        // certificadoFull.filename = fileName;
-        // certificadoFull.codigoQrPath = qrPath;
-        // await this.certificadoRepository.save(certificadoFull);
-
-        // // URL pública y QR
-        // const frontendUrl = this.configService.get<string>(
-        //     'FRONTEND_URL',
-        //     'https://app.innovaperu.edu.pe',
-        // );
-        // const qrUrl = `${frontendUrl.replace(/\/$/, '')}/validar-certificado/${codigoVerificacion}`;
-
-        // const qrBase64 = await this.qrCodeService.generateAndSaveQR(qrUrl, qrPath);
-
-        // // Resolver esquema de estilos (basado en tipoPrograma, tipo_disenio y disenio_default)
-        // const tipoDisenio = certificadoFull.plantilla?.tipoDisenio;
-        // const disenioDefault = certificadoFull.plantilla?.disenioDefault;
-
-        // console.log({ tipoDisenio })
-        // console.log({ disenioDefault })
-
-        // const selectedStyles = resolvePdfStyle(disenioDefault, tipoDisenio);
-        // console.log({ selectedStyles })
-
-        // // Resolver texto de fechas y horas
-        // const horas = certificadoFull.programa?.horasAcademicas || 120;
-        // const fechasText = DateHelper.formatearRangoFechas(certificadoFull.programa?.fechaInicio, certificadoFull.programa?.fechaFinal)
-        // const fechasHorasText = `${fechasText} con una duración de ${horas} horas`
-
-        // // Logo institucional
-        // const logoPath = certificadoFull.sucursal?.logoPath || certificadoFull.plantilla?.institucion?.logoPath;
-
-        // // Compilar PDF
-        // const relativePdfPath = path.join(folderPath, fileName);
-        // await this.pdfGeneratorService.generarCertificadoPdf({
-        //     nombreAlumno: certificadoFull.nombreImpresion,
-        //     tituloPrograma: certificadoFull.programa?.titulo || 'PROGRAMA ACADÉMICO',
-        //     fechasProgramaText: fechasHorasText,
-        //     nombreDirector: certificadoFull.plantilla?.institucion?.nombreDirector,
-        //     codigoVerificacion,
-        //     qrBase64,
-        //     pathPdfFondo: certificadoFull.plantilla?.pathPdfFondo,
-        //     outputPath: relativePdfPath,
-        //     temario: contenido,
-        //     esEspecializacion,
-        //     logoPath: logoPath ? path.resolve(process.cwd(), 'storage', logoPath) : null,
-        //     styles: selectedStyles,
-        //     disenioDefault
-        // });
-
-        // return certificadoFull;
     }
 
     /**
@@ -377,6 +231,10 @@ export class CertificadosService {
         const tipoDisenio = certificadoFull.plantilla?.tipoDisenio;
         const disenioDefault = certificadoFull.plantilla?.disenioDefault;
         const selectedStyles = resolvePdfStyle(disenioDefault, tipoDisenio);
+
+        console.log({tipoDisenio})
+        console.log({disenioDefault})
+        console.log({selectedStyles})
 
         // Fechas y Horas
         const horas = certificadoFull.programa?.horasAcademicas || 120;

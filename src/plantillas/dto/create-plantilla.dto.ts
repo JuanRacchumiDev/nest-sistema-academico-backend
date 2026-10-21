@@ -14,6 +14,11 @@ export class CreatePlantillaDto {
 
     @IsOptional()
     @Transform(({ value }) => (value ? Number(value) : null))
+    @IsNumber()
+    id_sucursal?: number
+
+    @IsOptional()
+    @Transform(({ value }) => (value ? Number(value) : null))
     codigo_tipoprograma: number
 
     @IsOptional()

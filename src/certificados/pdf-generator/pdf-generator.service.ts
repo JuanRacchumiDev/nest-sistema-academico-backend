@@ -82,10 +82,6 @@ export class PdfGeneratorService {
             let maxWidthDirector: number | undefined
             let directorAlign: TextAlign = 'center'
 
-            const isDiplomadoDesign =
-                options.disenioDefault === 'diplomado' ||
-                options.disenioDefault === 'especializacion_col_profesores_lima';
-
             console.log('---- disenioDefault ----')
             console.log(options.disenioDefault)
 
@@ -119,7 +115,7 @@ export class PdfGeneratorService {
                 directorBaseY = height - 544;
                 maxWidthDirector = 250;
                 directorAlign = 'center'
-            } else if (isDiplomadoDesign) {
+            } else if (options.disenioDefault === 'diplomado') {
                 console.log('cc')
                 alumnoBaseX = width / 2 - 215;
                 alumnoBaseY = height - 160;
@@ -140,8 +136,28 @@ export class PdfGeneratorService {
                 directorBaseY = height - 544;
                 maxWidthDirector = 250;
                 directorAlign = 'center'
-            } else {
+            } else if (options.disenioDefault === 'especializacion_peruagro') {
                 console.log('dd')
+
+                alumnoBaseX = width - 300; 
+                alumnoBaseY = 320;
+                maxWidthAlumno = (width / 2);
+                alumnoAlign = 'center';
+
+                programaBaseX = width - 400;
+                programaBaseY = 270;
+                maxWidthPrograma = width / 2;
+                programaAlign = 'center';
+
+                // fechaBaseY = 190;
+                // maxWidthFecha = width * 0.90;
+
+                // directorBaseX = width / 2 - 80;
+                // directorBaseY = height - 546;
+                // maxWidthDirector = 270;
+                // directorAlign = 'center'
+            } else {
+                console.log('ee')
 
                 alumnoBaseY = 250;
                 maxWidthAlumno = width * 0.90;
@@ -242,6 +258,7 @@ export class PdfGeneratorService {
                 const fontDirector = await this.resolveFont(pdfDoc, options.styles.director);
                 const colorDirector = this.hexToRgb(options.styles.director.color);
                 const fontSizeDirector = options.styles.director.fontSize;
+                console.log({ fontSizeDirector })
 
                 this.renderDirector({
                     page: page1,
@@ -254,8 +271,6 @@ export class PdfGeneratorService {
                     maxWidth: maxWidthDirector,
                     align: directorAlign
                 });
-            } else {
-                console.log('no existe')
             }
 
             // --------
@@ -283,15 +298,6 @@ export class PdfGeneratorService {
             });
 
             startY -= 60;
-
-            // Título del Curso en Hoja 2
-            // page2.drawText(options.tituloPrograma, {
-            //     x: leftColX,
-            //     y: startY,
-            //     size: 15,
-            //     font: fontHelvBold,
-            //     color: rgb(0.04, 0.13, 0.22),
-            // });
 
             this.renderTituloPrograma({
                 page: page2,
@@ -353,18 +359,6 @@ export class PdfGeneratorService {
                     });
                     itemY -= 16;
                 }
-                // for (const item of temarioItems) {
-                //     if (!item.trim()) continue;
-
-                //     page2.drawText(`${item.trim()}`, {
-                //         x: leftColX + 5,
-                //         y: itemY,
-                //         size: 10,
-                //         font: fontHelv,
-                //         color: rgb(0.1, 0.1, 0.1),
-                //     });
-                //     itemY -= 16;
-                // }
             }
 
             // Columna Derecha: Logo e Inserción de Tabla de Registro Electrónico con QR
@@ -846,21 +840,14 @@ export class PdfGeneratorService {
             maxWidth = 300,
         } = options;
 
+        console.log({ baseFontSize })
+
         let fontSize = baseFontSize;
         const originalWidth = font.widthOfTextAtSize(text, fontSize);
 
-        // const debugBoxX = align === 'center' ? baseX - maxWidth / 2 : baseX;
-        // page.drawRectangle({
-        //     x: debugBoxX,
-        //     y: baseY - 5,
-        //     width: maxWidth,
-        //     height: fontSize + 10,
-        //     borderColor: rgb(1, 0, 0), // Rojo para el contenedor maxWidth
-        //     borderWidth: 1,
-        // });
-
         // CASO 1: El texto cabe perfectamente en 1 sola línea
         if (originalWidth <= maxWidth) {
+            console.log('caso 1');
             const x = align === 'center' ? baseX - originalWidth / 2 : baseX;
             page.drawText(text, {
                 x,
@@ -869,24 +856,17 @@ export class PdfGeneratorService {
                 font,
                 color,
             });
-
-            // Borde exacto sobre el texto en 1 línea
-            // page.drawRectangle({
-            //     x,
-            //     y: baseY - 2,
-            //     width: originalWidth,
-            //     height: fontSize + 4,
-            //     borderColor: rgb(0, 0, 1), // Azul para el borde del texto ajustado
-            //     borderWidth: 1,
-            // });
             return;
         }
 
         // CASO 2: Intento de escalado fluido en 1 sola línea (reducción hasta ~85%)
         const minSingleLineFontSize = Math.round(baseFontSize * 0.85);
+        console.log({ minSingleLineFontSize })
         const scaledFontSize = Math.floor(baseFontSize * (maxWidth / originalWidth));
+        console.log({ scaledFontSize })
 
         if (scaledFontSize >= minSingleLineFontSize) {
+            console.log('caso 2')
             const scaledWidth = font.widthOfTextAtSize(text, scaledFontSize);
             const x = align === 'center' ? baseX - scaledWidth / 2 : baseX;
 
@@ -898,14 +878,6 @@ export class PdfGeneratorService {
                 color,
             });
 
-            // page.drawRectangle({
-            //     x,
-            //     y: baseY - 2,
-            //     width: scaledWidth,
-            //     height: scaledFontSize + 4,
-            //     borderColor: rgb(0, 0, 1), // Azul
-            //     borderWidth: 1,
-            // });
             return;
         }
 
@@ -913,6 +885,7 @@ export class PdfGeneratorService {
         const words = text.split(/\s+/);
 
         const breakTextIntoLines = (currentSize: number): string[] => {
+            console.log('caso 3')
             const resultLines: string[] = [];
             let currentLine = '';
 
@@ -932,6 +905,7 @@ export class PdfGeneratorService {
         };
 
         let lines = breakTextIntoLines(fontSize);
+        console.log({ lines })
 
         // Reducir tamaño progresivamente en caso de que alguna palabra individual sobrepase el maxWidth
         const minFontSize = 8;
@@ -955,14 +929,6 @@ export class PdfGeneratorService {
                 color,
             });
 
-            // page.drawRectangle({
-            //     x,
-            //     y: baseY - 2,
-            //     width: lineWidth,
-            //     height: fontSize + 4,
-            //     borderColor: rgb(0, 0, 1),
-            //     borderWidth: 1,
-            // });
             return;
         }
 

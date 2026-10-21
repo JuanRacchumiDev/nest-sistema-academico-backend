@@ -60,6 +60,9 @@ export class PlantillasService {
             ...(dto.id_institucion !== undefined && {
                 institucion: dto.id_institucion ? { id: dto.id_institucion } as any : null
             }),
+            ...(dto.id_sucursal !== undefined && {
+                sucursal: dto.id_sucursal ? { id: dto.id_sucursal } as any : null
+            }),
             ...(dto.codigo_tipoprograma !== undefined && {
                 tipoPrograma: dto.codigo_tipoprograma ? { codigo: dto.codigo_tipoprograma } as any : null
             })
@@ -106,6 +109,7 @@ export class PlantillasService {
             userCrea,
             fechaCrea,
             ...(dto.id_institucion && { institucion: { id: dto.id_institucion } }),
+            ...(dto.id_sucursal && { sucursal: { id: dto.id_sucursal } }),
             ...(dto.codigo_tipoprograma && { tipoPrograma: { codigo: dto.codigo_tipoprograma } })
         }
 
@@ -119,6 +123,7 @@ export class PlantillasService {
             where: { id, estado: true },
             relations: {
                 institucion: true,
+                sucursal: true,
                 tipoPrograma: true
             }
         })

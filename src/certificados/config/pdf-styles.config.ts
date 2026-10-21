@@ -732,6 +732,34 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 fontSize: 11
             }
         }
+    },
+    especializacion_peruagro: {
+        especializacion_col_ingenieros_moyobamba: {
+            alumno: {
+                color: '#000000',
+                custom_font: true,
+                font: 'Broughton.ttf',
+                fontSize: 60,
+            },
+            programa: {
+                color: '#13253C',
+                custom_font: true,
+                font: 'BalooChettan2-Bold.ttf',
+                fontSize: 30,
+            },
+            fechas: {
+                color: '#A87D26',
+                custom_font: true,
+                font: 'BalooChettan2-Bold.ttf',
+                fontSize: 17,
+            },
+            director: {
+                color: '#000000',
+                custom_font: true,
+                font: 'Archivo-Medium.ttf',
+                fontSize: 12,
+            },
+        },
     }
 };
 
