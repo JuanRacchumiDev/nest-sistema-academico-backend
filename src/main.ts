@@ -11,8 +11,8 @@ async function bootstrap() {
   const port = configService.get<number>('PORT', 3004)
 
   // Configura los límites del parser del body
-  app.use(json({ limit: '20mb' }));
-  app.use(urlencoded({ extended: true, limit: '20mb' }));
+  app.use(json({ limit: '50mb' }));
+  app.use(urlencoded({ extended: true, limit: '50mb' }));
 
   // --- CONFIGURACIÓN DE CORS ---
   const frontendUrl = configService.get<string>(
