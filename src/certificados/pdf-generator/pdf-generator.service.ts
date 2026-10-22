@@ -12,7 +12,7 @@ export type TextAlign = 'center' | 'left';
 export interface RenderCertificadoOptions {
     nombreAlumno: string;
     tituloPrograma: string;
-    fechasProgramaText: string
+    fechasProgramaText?: string
     nombreDirector?: string | null
     codigoVerificacion: string;
     qrBase64: string;
@@ -139,23 +139,15 @@ export class PdfGeneratorService {
             } else if (options.disenioDefault === 'especializacion_peruagro') {
                 console.log('dd')
 
-                alumnoBaseX = width - 300; 
-                alumnoBaseY = 320;
-                maxWidthAlumno = (width / 2);
+                alumnoBaseX = width - 290; 
+                alumnoBaseY = 335;
+                maxWidthAlumno = (width / 2) + 100;
                 alumnoAlign = 'center';
 
-                programaBaseX = width - 400;
-                programaBaseY = 270;
-                maxWidthPrograma = width / 2;
+                programaBaseX = width - 285;
+                programaBaseY = 260;
+                maxWidthPrograma = (width / 2);
                 programaAlign = 'center';
-
-                // fechaBaseY = 190;
-                // maxWidthFecha = width * 0.90;
-
-                // directorBaseX = width / 2 - 80;
-                // directorBaseY = height - 546;
-                // maxWidthDirector = 270;
-                // directorAlign = 'center'
             } else {
                 console.log('ee')
 
@@ -227,7 +219,10 @@ export class PdfGeneratorService {
             console.log(options.styles.programa.fontSize)
 
             // Renderizado de Fechas
-            if (options.fechasProgramaText) {
+            console.log('---- renderizado fechas ----')
+            console.log('---- options.styles.fechas ----')
+            console.log(options.styles.fechas)
+            if (options.fechasProgramaText && options.styles.fechas) {
                 const fontFechas = await this.resolveFont(pdfDoc, options.styles.fechas);
                 const colorFechas = this.hexToRgb(options.styles.fechas.color);
                 const fontSizeFechas = options.styles.fechas.fontSize;
@@ -253,7 +248,7 @@ export class PdfGeneratorService {
             console.log(options.nombreDirector)
 
             // Renderizado de Firma Director (Si aplica el diseño)
-            if (options.styles.director && options.nombreDirector) {
+            if (options.nombreDirector && options.styles.director) {
                 console.log('existe nombreDirector')
                 const fontDirector = await this.resolveFont(pdfDoc, options.styles.director);
                 const colorDirector = this.hexToRgb(options.styles.director.color);
@@ -347,8 +342,8 @@ export class PdfGeneratorService {
                     if (!item || !item.trim()) continue;
 
                     // Si es especialización, agregar prefijo numérico "Módulo X: "
-                    const prefix = options.esEspecializacion ? `Módulo ${i + 1}: ` : '• ';
-                    const itemText = `${prefix}${item.trim()}`;
+                    const prefix = options.esEspecializacion ? `Módulo ${i + 1}: ` : '';
+                    const itemText = prefix ? `${prefix}${item.trim()}` : item.trim();
 
                     page2.drawText(itemText, {
                         x: leftColX + 5,
@@ -374,9 +369,9 @@ export class PdfGeneratorService {
 
                 page2.drawImage(logoImg, {
                     x: rightColX + 40,
-                    y: height - 120,
-                    width: 180,
-                    height: 65,
+                    y: height - 170,
+                    width: 197,
+                    height: 126,
                 });
             }
 
@@ -1155,7 +1150,8 @@ export class PdfGeneratorService {
         if (style.custom_font) {
             const fontPath = path.resolve(process.cwd(), 'assets/fonts', style.font);
             if (fs.existsSync(fontPath)) {
-                return await pdfDoc.embedFont(fs.readFileSync(fontPath));
+                const fontBytes = fs.readFileSync(fontPath);
+                return await pdfDoc.embedFont(fontBytes, { subset: true });
             }
         }
         return await pdfDoc.embedFont('Helvetica');

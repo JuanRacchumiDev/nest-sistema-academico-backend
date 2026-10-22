@@ -228,12 +228,12 @@ export class CertificadosService {
         const qrBase64 = await this.qrCodeService.generateAndSaveQR(qrUrl, qrPath);
 
         // Estilos
-        const tipoDisenio = certificadoFull.plantilla?.tipoDisenio;
         const disenioDefault = certificadoFull.plantilla?.disenioDefault;
+        const tipoDisenio = certificadoFull.plantilla?.tipoDisenio;
         const selectedStyles = resolvePdfStyle(disenioDefault, tipoDisenio);
 
-        console.log({tipoDisenio})
         console.log({disenioDefault})
+        console.log({tipoDisenio})
         console.log({selectedStyles})
 
         // Fechas y Horas

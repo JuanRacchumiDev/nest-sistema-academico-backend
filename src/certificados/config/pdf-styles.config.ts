@@ -8,7 +8,7 @@ export interface TextStyleConfig {
 export interface PdfDesignStyle {
     alumno: TextStyleConfig
     programa: TextStyleConfig
-    fechas: TextStyleConfig
+    fechas?: TextStyleConfig
     director?: TextStyleConfig
 }
 
@@ -739,26 +739,28 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#000000',
                 custom_font: true,
                 font: 'Broughton.ttf',
-                fontSize: 60,
+                fontSize: 54,
             },
             programa: {
                 color: '#13253C',
                 custom_font: true,
                 font: 'BalooChettan2-Bold.ttf',
-                fontSize: 30,
-            },
-            fechas: {
-                color: '#A87D26',
-                custom_font: true,
-                font: 'BalooChettan2-Bold.ttf',
-                fontSize: 17,
-            },
-            director: {
+                fontSize: 28,
+            }
+        },
+        especializacion_col_ingenieros_tacna: {
+            alumno: {
                 color: '#000000',
                 custom_font: true,
-                font: 'Archivo-Medium.ttf',
-                fontSize: 12,
+                font: 'Broughton.ttf',
+                fontSize: 54,
             },
+            programa: {
+                color: '#13253C',
+                custom_font: true,
+                font: 'BalooChettan2-Bold.ttf',
+                fontSize: 28,
+            }
         },
     }
 };
@@ -771,8 +773,7 @@ function isPdfDesignStyle(obj: unknown): obj is PdfDesignStyle {
         typeof obj === 'object' &&
         obj !== null &&
         'alumno' in obj &&
-        'programa' in obj &&
-        'fechas' in obj
+        'programa' in obj
     );
 }
 
@@ -790,11 +791,27 @@ export function resolvePdfStyle(
 
     const grupoTipo = STYLES_PDFS_CONFIG[tipoKey] as Record<string, unknown> | undefined;
 
+    console.log('---- obteniendo estilos en el método resolvePdfStyle ----')
+    console.log({disenioDefault})
+    console.log({tipoDisenio})
+    console.log({subtipoDisenio})
+
+    console.log({tipoKey})
+    console.log({disenioKey})
+    console.log({subtipoKey})
+
+    console.log({grupoTipo})
+
     // 1. Buscar en nivel profundo (tipo -> diseño -> subtipo)
     if (subtipoKey && grupoTipo) {
+        console.log('---- existe subtipoKey && grupoTipo ----')
         const grupoDisenio = grupoTipo[disenioKey] as Record<string, unknown> | undefined;
+        console.log({grupoDisenio})
+
         if (grupoDisenio) {
+            console.log('---- existe grupoDisenio ----')
             const target = grupoDisenio[subtipoKey];
+            console.log({target})
             if (isPdfDesignStyle(target)) {
                 return target;
             }
@@ -803,7 +820,10 @@ export function resolvePdfStyle(
 
     // 2. Buscar en nivel intermedio (tipo -> diseño)
     if (grupoTipo) {
+        console.log('---- existe grupoTipo ----')
         const targetIntermedio = grupoTipo[disenioKey];
+        console.log({targetIntermedio})
+
         if (isPdfDesignStyle(targetIntermedio)) {
             return targetIntermedio;
         }
