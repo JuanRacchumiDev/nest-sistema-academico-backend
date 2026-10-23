@@ -739,13 +739,19 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#000000',
                 custom_font: true,
                 font: 'Broughton.ttf',
-                fontSize: 54,
+                fontSize: 52,
             },
             programa: {
                 color: '#13253C',
                 custom_font: true,
                 font: 'BalooChettan2-Bold.ttf',
-                fontSize: 28,
+                fontSize: 26,
+            },
+            fechas: {
+                color: '#CB9336',
+                custom_font: true,
+                font: 'BalooChettan2-Medium.ttf',
+                fontSize: 21
             }
         },
         especializacion_col_ingenieros_tacna: {
@@ -753,15 +759,43 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#000000',
                 custom_font: true,
                 font: 'Broughton.ttf',
-                fontSize: 54,
+                fontSize: 52,
             },
             programa: {
                 color: '#13253C',
                 custom_font: true,
                 font: 'BalooChettan2-Bold.ttf',
-                fontSize: 28,
+                fontSize: 26,
+            },
+            fechas: {
+                color: '#DE9428',
+                custom_font: true,
+                font: 'BalooChettan2-Medium.ttf',
+                fontSize: 14
             }
         },
+    },
+    certificado_peruagro: {
+        default_uno: {
+            alumno: {
+                color: '#CB9336',
+                custom_font: true,
+                font: 'Broughton.ttf',
+                fontSize: 52,
+            },
+            programa: {
+                color: '#13253C',
+                custom_font: true,
+                font: 'BalooChettan2-Bold.ttf',
+                fontSize: 20,
+            },
+            fechas: {
+                color: '#CB9336',
+                custom_font: true,
+                font: 'BalooChettan2-Medium.ttf',
+                fontSize: 15
+            }
+        }
     }
 };
 
@@ -792,26 +826,26 @@ export function resolvePdfStyle(
     const grupoTipo = STYLES_PDFS_CONFIG[tipoKey] as Record<string, unknown> | undefined;
 
     console.log('---- obteniendo estilos en el método resolvePdfStyle ----')
-    console.log({disenioDefault})
-    console.log({tipoDisenio})
-    console.log({subtipoDisenio})
+    console.log({ disenioDefault })
+    console.log({ tipoDisenio })
+    console.log({ subtipoDisenio })
 
-    console.log({tipoKey})
-    console.log({disenioKey})
-    console.log({subtipoKey})
+    console.log({ tipoKey })
+    console.log({ disenioKey })
+    console.log({ subtipoKey })
 
-    console.log({grupoTipo})
+    console.log({ grupoTipo })
 
     // 1. Buscar en nivel profundo (tipo -> diseño -> subtipo)
     if (subtipoKey && grupoTipo) {
         console.log('---- existe subtipoKey && grupoTipo ----')
         const grupoDisenio = grupoTipo[disenioKey] as Record<string, unknown> | undefined;
-        console.log({grupoDisenio})
+        console.log({ grupoDisenio })
 
         if (grupoDisenio) {
             console.log('---- existe grupoDisenio ----')
             const target = grupoDisenio[subtipoKey];
-            console.log({target})
+            console.log({ target })
             if (isPdfDesignStyle(target)) {
                 return target;
             }
@@ -822,7 +856,7 @@ export function resolvePdfStyle(
     if (grupoTipo) {
         console.log('---- existe grupoTipo ----')
         const targetIntermedio = grupoTipo[disenioKey];
-        console.log({targetIntermedio})
+        console.log({ targetIntermedio })
 
         if (isPdfDesignStyle(targetIntermedio)) {
             return targetIntermedio;

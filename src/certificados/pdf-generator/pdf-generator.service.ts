@@ -32,15 +32,17 @@ export class PdfGeneratorService {
     async generarCertificadoPdf(options: RenderCertificadoOptions): Promise<string> {
         console.log({ options })
 
+        const { outputPath, disenioDefault, pathPdfFondo } = options
+
         try {
-            const fullOutputPath = path.resolve(process.cwd(), 'storage', options.outputPath);
+            const fullOutputPath = path.resolve(process.cwd(), 'storage', outputPath);
             const outputDir = path.dirname(fullOutputPath);
 
             if (!fs.existsSync(outputDir)) {
                 fs.mkdirSync(outputDir, { recursive: true });
             }
 
-            const backgroundPdfPath = this.resolveTemplatePath(options.pathPdfFondo);
+            const backgroundPdfPath = this.resolveTemplatePath(pathPdfFondo);
             let pdfDoc: PDFDocument;
 
             // Cargar el PDF Plantilla como Fondo o Crear un PDF en blanco A4 Landscape
@@ -83,9 +85,9 @@ export class PdfGeneratorService {
             let directorAlign: TextAlign = 'center'
 
             console.log('---- disenioDefault ----')
-            console.log(options.disenioDefault)
+            console.log(disenioDefault)
 
-            if (options.disenioDefault === 'capacitacion') {
+            if (disenioDefault === 'capacitacion') {
                 console.log('aa')
                 alumnoBaseY = 300;
                 maxWidthAlumno = width * 0.86;
@@ -100,8 +102,9 @@ export class PdfGeneratorService {
                 directorBaseY = height - 530;
                 maxWidthDirector = 250;
                 directorAlign = 'center'
-            } else if (options.disenioDefault === 'certificacion') {
+            } else if (disenioDefault === 'certificacion') {
                 console.log('bb')
+
                 alumnoBaseY = 300;
                 maxWidthAlumno = width * 0.90;
 
@@ -115,8 +118,9 @@ export class PdfGeneratorService {
                 directorBaseY = height - 544;
                 maxWidthDirector = 250;
                 directorAlign = 'center'
-            } else if (options.disenioDefault === 'diplomado') {
+            } else if (disenioDefault === 'diplomado') {
                 console.log('cc')
+
                 alumnoBaseX = width / 2 - 215;
                 alumnoBaseY = height - 160;
                 maxWidthAlumno = width * 0.47;
@@ -136,20 +140,42 @@ export class PdfGeneratorService {
                 directorBaseY = height - 544;
                 maxWidthDirector = 250;
                 directorAlign = 'center'
-            } else if (options.disenioDefault === 'especializacion_peruagro') {
+            } else if (disenioDefault === 'especializacion_peruagro') {
                 console.log('dd')
 
-                alumnoBaseX = width - 290; 
-                alumnoBaseY = 335;
+                alumnoBaseX = width - 290;
+                alumnoBaseY = 340;
                 maxWidthAlumno = (width / 2) + 100;
                 alumnoAlign = 'center';
 
                 programaBaseX = width - 285;
-                programaBaseY = 260;
+                programaBaseY = 265;
                 maxWidthPrograma = (width / 2);
                 programaAlign = 'center';
-            } else {
+
+                fechaBaseX = width - 535;
+                fechaBaseY = 145;
+                maxWidthFecha = (width / 2) + 110;
+                fechaAlign = 'left';
+            } else if (disenioDefault === 'certificado_peruagro') {
                 console.log('ee')
+
+                alumnoBaseX = width - 390;
+                alumnoBaseY = 335;
+                maxWidthAlumno = (width / 2) - 100;
+                alumnoAlign = 'left';
+
+                programaBaseX = width - 385;
+                programaBaseY = 260;
+                maxWidthPrograma = (width / 2) - 100;
+                programaAlign = 'left';
+
+                fechaBaseX = width - 285;
+                fechaBaseY = 220;
+                maxWidthFecha = (width / 2) - 100;
+                fechaAlign = 'left';
+            } else {
+                console.log('ff')
 
                 alumnoBaseY = 250;
                 maxWidthAlumno = width * 0.90;
