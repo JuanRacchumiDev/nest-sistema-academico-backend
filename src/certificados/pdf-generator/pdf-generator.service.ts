@@ -160,19 +160,19 @@ export class PdfGeneratorService {
             } else if (disenioDefault === 'certificado_peruagro') {
                 console.log('ee')
 
-                alumnoBaseX = width - 390;
-                alumnoBaseY = 335;
-                maxWidthAlumno = (width / 2) - 100;
+                alumnoBaseX = 110;
+                alumnoBaseY = 315;
+                maxWidthAlumno = width - 350;
                 alumnoAlign = 'left';
 
-                programaBaseX = width - 385;
-                programaBaseY = 260;
-                maxWidthPrograma = (width / 2) - 100;
+                programaBaseX = 110;
+                programaBaseY = 250;
+                maxWidthPrograma = width - 350;
                 programaAlign = 'left';
 
-                fechaBaseX = width - 285;
-                fechaBaseY = 220;
-                maxWidthFecha = (width / 2) - 100;
+                fechaBaseX = 110;
+                fechaBaseY = 210;
+                maxWidthFecha = width - 350;
                 fechaAlign = 'left';
             } else {
                 console.log('ff')
@@ -291,6 +291,20 @@ export class PdfGeneratorService {
                     baseY: directorBaseY,
                     maxWidth: maxWidthDirector,
                     align: directorAlign
+                });
+            }
+
+            if (disenioDefault === 'certificado_peruagro' && options.qrBase64) {
+                const qrBuffer = Buffer.from(
+                    options.qrBase64.replace(/^data:image\/png;base64,/, ''),
+                    'base64',
+                );
+                const qrImg = await pdfDoc.embedPng(qrBuffer);
+                page1.drawImage(qrImg, {
+                    x: (width / 2) + 212,
+                    y: 80,
+                    width: 145,
+                    height: 145,
                 });
             }
 
@@ -474,19 +488,19 @@ export class PdfGeneratorService {
                 borderWidth: 1,
             });
 
-            if (options.qrBase64) {
-                const qrBuffer = Buffer.from(
-                    options.qrBase64.replace(/^data:image\/png;base64,/, ''),
-                    'base64',
-                );
-                const qrImg = await pdfDoc.embedPng(qrBuffer);
-                page2.drawImage(qrImg, {
-                    x: tableX + 50,
-                    y: tableY - 34 - qrBoxHeight,
-                    width: 130,
-                    height: 130,
-                });
-            }
+            // if (disenioDefault !== 'certificado_peruagro' && options.qrBase64) {
+            const qrBuffer = Buffer.from(
+                options.qrBase64.replace(/^data:image\/png;base64,/, ''),
+                'base64',
+            );
+            const qrImg = await pdfDoc.embedPng(qrBuffer);
+            page2.drawImage(qrImg, {
+                x: tableX + 50,
+                y: tableY - 34 - qrBoxHeight,
+                width: 130,
+                height: 130,
+            });
+            // }
 
             // Guardar y Escribir el Archivo Compilado en Disco
             const pdfBytes = await pdfDoc.save();

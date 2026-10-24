@@ -7,7 +7,8 @@ import * as path from 'path';
 export class QrCodeService {
     async generateAndSaveQR(
         url: string,
-        outputRelativePath: string
+        outputRelativePath: string,
+        disenioDefault: string
     ): Promise<string> {
         try {
             const fullPath = path.resolve(process.cwd(), 'storage', outputRelativePath)
@@ -17,11 +18,14 @@ export class QrCodeService {
                 fs.mkdirSync(dir, { recursive: true })
             }
 
+            const colorDark = (disenioDefault) ? '#CB9336' : '#000000'
+            const colorLight = (disenioDefault) ? '#00000000' : '#FFFFFF'
+
             // Guardar el código QR en el código local
             await QRCode.toFile(fullPath, url, {
                 width: 300,
                 margin: 1,
-                color: { dark: '#000000', light: '#FFFFFF' }
+                color: { dark: colorDark, light: colorLight }
             })
 
             // Leer para convertir a Data URI (Base64)

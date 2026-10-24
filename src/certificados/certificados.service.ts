@@ -222,19 +222,20 @@ export class CertificadosService {
             'FRONTEND_URL',
             'https://app.innovaperu.edu.pe',
         );
-        const qrUrl = `${frontendUrl.replace(/\/$/, '')}/validar-certificado/${codigoVerificacion}`;
 
-        // Generar o sobrescribir la imagen QR
-        const qrBase64 = await this.qrCodeService.generateAndSaveQR(qrUrl, qrPath);
+        const qrUrl = `${frontendUrl.replace(/\/$/, '')}/validar-certificado/${codigoVerificacion}`;
 
         // Estilos
         const disenioDefault = certificadoFull.plantilla?.disenioDefault;
         const tipoDisenio = certificadoFull.plantilla?.tipoDisenio;
         const selectedStyles = resolvePdfStyle(disenioDefault, tipoDisenio);
 
-        console.log({disenioDefault})
-        console.log({tipoDisenio})
-        console.log({selectedStyles})
+        // Generar o sobrescribir la imagen QR
+        const qrBase64 = await this.qrCodeService.generateAndSaveQR(qrUrl, qrPath, disenioDefault);
+
+        console.log({ disenioDefault })
+        console.log({ tipoDisenio })
+        console.log({ selectedStyles })
 
         // Fechas y Horas
         const horas = certificadoFull.programa?.horasAcademicas || 120;

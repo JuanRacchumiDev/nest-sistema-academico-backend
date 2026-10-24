@@ -781,7 +781,7 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#CB9336',
                 custom_font: true,
                 font: 'Broughton.ttf',
-                fontSize: 52,
+                fontSize: 48,
             },
             programa: {
                 color: '#13253C',
@@ -793,7 +793,7 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#CB9336',
                 custom_font: true,
                 font: 'BalooChettan2-Medium.ttf',
-                fontSize: 15
+                fontSize: 16
             }
         }
     }
