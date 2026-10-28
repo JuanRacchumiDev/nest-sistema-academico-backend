@@ -18,8 +18,8 @@ export class QrCodeService {
                 fs.mkdirSync(dir, { recursive: true })
             }
 
-            const colorDark = (disenioDefault) ? '#CB9336' : '#000000'
-            const colorLight = (disenioDefault) ? '#00000000' : '#FFFFFF'
+            const colorDark = (disenioDefault && disenioDefault === 'certificado_peruagro') ? '#CB9336' : '#000000'
+            const colorLight = (disenioDefault && disenioDefault === 'certificado_peruagro') ? '#00000000' : '#FFFFFF'
 
             // Guardar el código QR en el código local
             await QRCode.toFile(fullPath, url, {

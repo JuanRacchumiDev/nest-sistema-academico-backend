@@ -5,6 +5,15 @@ import { Repository } from 'typeorm';
 import { CreatePlantillaDto } from './dto/create-plantilla.dto.js';
 import { AuthenticatedUser } from '../common/decorators/current-user.decorator.js';
 import { UpdatePlantillaDto } from './dto/update-plantilla.dto.js';
+import * as fs from 'fs';
+import * as path from 'path';
+
+export interface PlantillaTemp {
+    plantilla: Plantilla,
+    hasImagenFondo?: boolean
+    hasImagenPublica?: boolean
+    hasPdfFondo?: boolean
+}
 
 export interface PlantillaFiles {
     path_imagen_fondo?: Express.Multer.File[]
@@ -26,7 +35,8 @@ export class PlantillasService {
         user?: AuthenticatedUser
     ): Promise<Plantilla> {
         // Verifica si la plantilla existe
-        const plantilla = await this.findOneById(id)
+        const plantillaTemp = await this.findOneById(id)
+        const plantilla = plantillaTemp.plantilla
 
         const userActualiza = user?.name || 'SYSTEM'
         const fechaActualiza = new Date().toISOString().substring(0, 10)
@@ -118,9 +128,10 @@ export class PlantillasService {
         return await this.plantillaRepository.save(nuevaPlantilla)
     }
 
-    async findOneById(id: number): Promise<Plantilla> {
+    async findOneById(id: number): Promise<PlantillaTemp> {
         const plantilla = await this.plantillaRepository.findOne({
             where: { id, estado: true },
+
             relations: {
                 institucion: true,
                 sucursal: true,
@@ -132,6 +143,18 @@ export class PlantillasService {
             throw new NotFoundException(`Plantilla con ID ${id} no encontrada`);
         }
 
-        return plantilla
+        const storageRoot = path.resolve(process.cwd(), 'storage');
+
+        // Verificar si el archivo existe físicamente en el disco
+        const hasImagenFondo = !!plantilla.pathImagenFondo && fs.existsSync(path.join(storageRoot, plantilla.pathImagenFondo));
+        const hasImagenPublica = !!plantilla.pathImagenPublica && fs.existsSync(path.join(storageRoot, plantilla.pathImagenPublica));
+        const hasPdfFondo = !!plantilla.pathPdfFondo && fs.existsSync(path.join(storageRoot, plantilla.pathPdfFondo));
+
+        return {
+            plantilla,
+            hasImagenFondo,
+            hasImagenPublica,
+            hasPdfFondo
+        }
     }
 }

@@ -305,7 +305,7 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#D5A701',
                 custom_font: true,
                 font: 'Archivo-Regular.ttf',
-                fontSize: 17,
+                fontSize: 16,
             },
             director: {
                 color: '#000000',
@@ -331,7 +331,7 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#007A3E',
                 custom_font: true,
                 font: 'Archivo-Regular.ttf',
-                fontSize: 17,
+                fontSize: 16,
             },
             director: {
                 color: '#000000',
@@ -357,7 +357,7 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#C6A54F',
                 custom_font: true,
                 font: 'Archivo-Regular.ttf',
-                fontSize: 17,
+                fontSize: 16,
             },
             director: {
                 color: '#000000',
@@ -383,7 +383,7 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#B89439',
                 custom_font: true,
                 font: 'Archivo-Regular.ttf',
-                fontSize: 17,
+                fontSize: 16,
             },
             director: {
                 color: '#000000',
@@ -409,7 +409,7 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#02BFBE',
                 custom_font: true,
                 font: 'Archivo-Regular.ttf',
-                fontSize: 17,
+                fontSize: 16,
             },
             director: {
                 color: '#000000',
@@ -435,7 +435,7 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#A87D26',
                 custom_font: true,
                 font: 'Archivo-Regular.ttf',
-                fontSize: 17,
+                fontSize: 16,
             },
             director: {
                 color: '#000000',
@@ -461,7 +461,7 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#A87D26',
                 custom_font: true,
                 font: 'Archivo-Regular.ttf',
-                fontSize: 17,
+                fontSize: 16,
             },
             director: {
                 color: '#000000',
@@ -487,7 +487,7 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#E5231E',
                 custom_font: true,
                 font: 'Archivo-Regular.ttf',
-                fontSize: 17,
+                fontSize: 16,
             },
             director: {
                 color: '#000000',
@@ -503,19 +503,19 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#D5A701',
                 custom_font: true,
                 font: 'GreatVibes-Regular.ttf',
-                fontSize: 70
+                fontSize: 62
             },
             programa: {
                 color: '#0092FF',
                 custom_font: true,
                 font: 'Anton.ttf',
-                fontSize: 28
+                fontSize: 26
             },
             fechas: {
                 color: '#D5A701',
                 custom_font: true,
                 font: 'Archivo-Regular.ttf',
-                fontSize: 14
+                fontSize: 13
             },
             director: {
                 color: '#000000',
@@ -529,19 +529,19 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#007A3E',
                 custom_font: true,
                 font: 'GreatVibes-Regular.ttf',
-                fontSize: 78
+                fontSize: 62
             },
             programa: {
                 color: '#000000',
                 custom_font: true,
                 font: 'Anton.ttf',
-                fontSize: 30
+                fontSize: 26
             },
             fechas: {
                 color: '#007A3E',
                 custom_font: true,
                 font: 'Archivo-Regular.ttf',
-                fontSize: 17
+                fontSize: 13
             },
             director: {
                 color: '#1D1D1B',
@@ -555,19 +555,19 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#D5A701',
                 custom_font: true,
                 font: 'GreatVibes-Regular.ttf',
-                fontSize: 78
+                fontSize: 62
             },
             programa: {
                 color: '#000000',
                 custom_font: true,
                 font: 'Anton.ttf',
-                fontSize: 30
+                fontSize: 26
             },
             fechas: {
                 color: '#D5A701',
                 custom_font: true,
                 font: 'Archivo-Regular.ttf',
-                fontSize: 17
+                fontSize: 13
             },
             director: {
                 color: '#1D1D1B',
@@ -581,19 +581,19 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#B89439',
                 custom_font: true,
                 font: 'GreatVibes-Regular.ttf',
-                fontSize: 78
+                fontSize: 62
             },
             programa: {
                 color: '#0D377F',
                 custom_font: true,
                 font: 'Anton.ttf',
-                fontSize: 30
+                fontSize: 26
             },
             fechas: {
                 color: '#B89439',
                 custom_font: true,
                 font: 'Archivo-Regular.ttf',
-                fontSize: 17
+                fontSize: 13
             },
             director: {
                 color: '#1D1D1B',
@@ -607,19 +607,19 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#02BFBE',
                 custom_font: true,
                 font: 'GreatVibes-Regular.ttf',
-                fontSize: 78
+                fontSize: 62
             },
             programa: {
                 color: '#191C43',
                 custom_font: true,
                 font: 'Anton.ttf',
-                fontSize: 30
+                fontSize: 26
             },
             fechas: {
                 color: '#E09227',
                 custom_font: true,
                 font: 'Archivo-Regular.ttf',
-                fontSize: 17
+                fontSize: 13
             },
             director: {
                 color: '#1D1D1B',
@@ -633,19 +633,19 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#000000',
                 custom_font: true,
                 font: 'GreatVibes-Regular.ttf',
-                fontSize: 78
+                fontSize: 62
             },
             programa: {
                 color: '#191C43',
                 custom_font: true,
                 font: 'Anton.ttf',
-                fontSize: 30
+                fontSize: 26
             },
             fechas: {
                 color: '#E5231E',
                 custom_font: true,
                 font: 'Archivo-Regular.ttf',
-                fontSize: 17
+                fontSize: 13
             },
             director: {
                 color: '#1D1D1B',
@@ -659,19 +659,19 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#BC9550',
                 custom_font: true,
                 font: 'GreatVibes-Regular.ttf',
-                fontSize: 78
+                fontSize: 62
             },
             programa: {
                 color: '#6C0E10',
                 custom_font: true,
                 font: 'Anton.ttf',
-                fontSize: 30
+                fontSize: 26
             },
             fechas: {
                 color: '#BC9550',
                 custom_font: true,
                 font: 'Archivo-Regular.ttf',
-                fontSize: 17
+                fontSize: 13
             },
             director: {
                 color: '#1D1D1B',
@@ -685,19 +685,19 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#A87D26',
                 custom_font: true,
                 font: 'GreatVibes-Regular.ttf',
-                fontSize: 78
+                fontSize: 62
             },
             programa: {
                 color: '#0C2468',
                 custom_font: true,
                 font: 'Anton.ttf',
-                fontSize: 30
+                fontSize: 26
             },
             fechas: {
                 color: '#A87D26',
                 custom_font: true,
                 font: 'Archivo-Regular.ttf',
-                fontSize: 17
+                fontSize: 13
             },
             director: {
                 color: '#1D1D1B',
@@ -739,7 +739,7 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#000000',
                 custom_font: true,
                 font: 'Broughton.ttf',
-                fontSize: 52,
+                fontSize: 51,
             },
             programa: {
                 color: '#13253C',
@@ -751,7 +751,7 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#CB9336',
                 custom_font: true,
                 font: 'BalooChettan2-Medium.ttf',
-                fontSize: 21
+                fontSize: 18
             }
         },
         especializacion_col_ingenieros_tacna: {
@@ -759,7 +759,7 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#000000',
                 custom_font: true,
                 font: 'Broughton.ttf',
-                fontSize: 52,
+                fontSize: 51,
             },
             programa: {
                 color: '#13253C',
@@ -771,7 +771,7 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 color: '#DE9428',
                 custom_font: true,
                 font: 'BalooChettan2-Medium.ttf',
-                fontSize: 14
+                fontSize: 18
             }
         },
     },

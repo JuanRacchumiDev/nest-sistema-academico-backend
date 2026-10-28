@@ -264,6 +264,8 @@ export class CertificadosService {
             logoPath: logoPath ? path.resolve(process.cwd(), 'storage', logoPath) : null,
             styles: selectedStyles,
             disenioDefault,
+            nombreSucursal: certificadoFull?.sucursal?.nombre,
+            slugSucursal: sucursalSlug
         });
 
         return certificadoFull;

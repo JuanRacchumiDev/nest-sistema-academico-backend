@@ -23,6 +23,8 @@ export interface RenderCertificadoOptions {
     logoPath?: string | null;
     styles: PdfDesignStyle,
     disenioDefault?: string | null
+    nombreSucursal?: string | null
+    slugSucursal?: string | null
 }
 
 @Injectable()
@@ -32,7 +34,7 @@ export class PdfGeneratorService {
     async generarCertificadoPdf(options: RenderCertificadoOptions): Promise<string> {
         console.log({ options })
 
-        const { outputPath, disenioDefault, pathPdfFondo } = options
+        const { outputPath, disenioDefault, pathPdfFondo, nombreSucursal, slugSucursal } = options
 
         try {
             const fullOutputPath = path.resolve(process.cwd(), 'storage', outputPath);
@@ -114,9 +116,9 @@ export class PdfGeneratorService {
                 fechaBaseY = 210;
                 maxWidthFecha = width * 0.80;
 
-                directorBaseX = width / 2 - 100;
-                directorBaseY = height - 544;
-                maxWidthDirector = 250;
+                directorBaseX = width / 2 - 80;
+                directorBaseY = height - 534;
+                maxWidthDirector = 300;
                 directorAlign = 'center'
             } else if (disenioDefault === 'diplomado') {
                 console.log('cc')
@@ -126,12 +128,12 @@ export class PdfGeneratorService {
                 maxWidthAlumno = width * 0.47;
                 alumnoAlign = 'left';
 
-                programaBaseX = width / 2 - 215;
+                programaBaseX = width / 2 - 212;
                 programaBaseY = height - 240;
                 maxWidthPrograma = width * 0.47;
                 programaAlign = 'left';
 
-                fechaBaseX = width / 2 - 215;
+                fechaBaseX = width / 2 - 212;
                 fechaBaseY = height - 350;
                 maxWidthFecha = width * 0.47;
                 fechaAlign = 'left';
@@ -155,7 +157,7 @@ export class PdfGeneratorService {
 
                 fechaBaseX = width - 535;
                 fechaBaseY = 145;
-                maxWidthFecha = (width / 2) + 110;
+                maxWidthFecha = (width / 2) + 85;
                 fechaAlign = 'left';
             } else if (disenioDefault === 'certificado_peruagro') {
                 console.log('ee')
@@ -320,8 +322,7 @@ export class PdfGeneratorService {
             let startY = height - 60;
 
             // Texto legal
-            const legalText =
-                'Esta es una copia auténtica imprimible de un documento electrónico archivado por INNOVAPERU,\naplicando lo dispuesto por el Art. 25 de D.S. 070-2013-PCM\ny la Tercera Disposición Complementaria Final del D.S. 026-2016-PCM.';
+            const legalText = `Esta es una copia auténtica imprimible de un documento electrónico archivado por ${nombreSucursal},\naplicando lo dispuesto por el Art. 25 de D.S. 070-2013-PCM\ny la Tercera Disposición Complementaria Final del D.S. 026-2016-PCM.`;
 
             page2.drawText(legalText, {
                 x: leftColX,
@@ -407,11 +408,14 @@ export class PdfGeneratorService {
                     ? await pdfDoc.embedPng(logoBuffer)
                     : await pdfDoc.embedJpg(logoBuffer);
 
+                const widthLogo = (slugSucursal === 'innovaperu') ? 210 : 197
+                const heightLogo = (slugSucursal === 'innovaperu') ? 96 : 126
+
                 page2.drawImage(logoImg, {
                     x: rightColX + 40,
                     y: height - 170,
-                    width: 197,
-                    height: 126,
+                    width: widthLogo,
+                    height: heightLogo,
                 });
             }
 

@@ -24,6 +24,9 @@ export class Institucion {
     @Column({ type: 'boolean', default: true })
     estado: boolean
 
+    @Column({ type: 'boolean', name: 'is_cliente', default: false })
+    isCliente: boolean
+
     @OneToMany(() => Certificado, (certificado) => certificado.sucursal)
     certificados: Certificado[]
 }

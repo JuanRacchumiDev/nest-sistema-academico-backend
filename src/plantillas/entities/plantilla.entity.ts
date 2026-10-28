@@ -54,8 +54,8 @@ export class Plantilla {
     @JoinColumn({ name: 'id_institucion' })
     institucion: Institucion
 
-    @ManyToOne(() => Institucion, {nullable: true})
-    @JoinColumn({name: 'id_sucursal'})
+    @ManyToOne(() => Institucion, { nullable: true })
+    @JoinColumn({ name: 'id_sucursal' })
     sucursal: Institucion
 
     @ManyToOne(() => DetalleParametro, { nullable: true })
