@@ -495,6 +495,32 @@ export const STYLES_PDFS_CONFIG: PdfStyleTree = {
                 font: 'Archivo-Medium.ttf',
                 fontSize: 12,
             },
+        },
+        especializacion_col_lima_metropolitana: {
+            alumno: {
+                color: '#D5A701',
+                custom_font: true,
+                font: 'GreatVibes-Regular.ttf',
+                fontSize: 60,
+            },
+            programa: {
+                color: '#002155',
+                custom_font: true,
+                font: 'Anton.ttf',
+                fontSize: 30,
+            },
+            fechas: {
+                color: '#D5A701',
+                custom_font: true,
+                font: 'Archivo-Regular.ttf',
+                fontSize: 16,
+            },
+            director: {
+                color: '#002155',
+                custom_font: true,
+                font: 'Archivo-Medium.ttf',
+                fontSize: 12,
+            },
         }
     },
     diplomado: {
